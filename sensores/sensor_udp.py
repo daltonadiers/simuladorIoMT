@@ -1,6 +1,6 @@
 import json
 import socket
-import sensor_generator
+from sensor_generator import Generator
 import psycopg2
 from datetime import datetime
 import time
@@ -68,13 +68,25 @@ def send_udp():
     pass
 
 def main():    
-    while True:
-        users = realizeQuerys()
-        if len(users) > 0:
-            sg = sensor_generator()
-            nova_geracao = sg.generate()
-            send_udp(nova_geracao)
-        time.sleep(10000)
+    #while True:
+    #    users = realizeQuerys()
+    #    if len(users) > 0:
+    #        sg = sensor_generator()
+    #        nova_geracao = sg.generate()
+    #        send_udp(nova_geracao)
+    #    time.sleep(10000)
+    conn = psycopg2.connect(
+        dbname="iomt",
+        user="user",
+        password="rebonatto",
+        host="localhost",
+        port="5432"
+    )
+    cursor = conn.cursor()
+    users = []
+    cursor.execute("SELECT id, name FROM users WHERE active = TRUE;")
+    active_users = cursor.fetchall()
+    print(active_users)
 
 if __name__ == "__main__":
     main()
