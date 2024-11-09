@@ -29,7 +29,7 @@ async def get_collected_data():
         result = cursor.fetchall()
     return {"data": result}
 
-@app.post("/collectd-data/")
+@app.post("/collected-data/")
 async def post_collected_data(data: Collected_Data_Input):
     sql = """
             INSERT INTO collected_data (userid, type, value1, value2, datetime, inhouse)
