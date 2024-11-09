@@ -11,3 +11,18 @@ CREATE TABLE users (
     longitude FLOAT NOT NULL,
     active BOOLEAN DEFAULT TRUE NOT NULL
 );
+
+CREATE TABLE collected_data (
+    seq SERIAL PRIMARY KEY,
+    userid INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    datetime TIMESTAMP NOT NULL,
+    type INTEGER,
+    value1 FLOAT,
+    value2 FLOAT,
+    inhouse BOOLEAN
+);
+CREATE TABLE types (
+    seq SERIAL PRIMARY KEY,
+    userid INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    type INTEGER NOT NULL
+);
