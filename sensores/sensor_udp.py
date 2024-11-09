@@ -1,41 +1,35 @@
-import json
 import socket
+import pickle
 from sensor_generator import Generator
 import psycopg2
 from datetime import datetime
 import time
+from util import User
 
-class User:
-    def __init__(self, id, type, value1, value2, dateTime):
-        self.id = id
-        self.type = type
-        self.value1 = value1
-        self.value2 = value2
-        self.dateTime = dateTime
+UDP_IP = "127.0.0.1"
+UDP_PORT = 7777 
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    def to_dict(self):
-        return {"id": self.id, "type": self.type, "value1":self.value1, "value2":self.value2}
-    
 def realizeQuerys():
     conn = psycopg2.connect(
         dbname="iomt",
         user="user",
         password="rebonatto",
         host="localhost",
-        port="3306"
+        port="5432"
     )
     cursor = conn.cursor()
     users = []
     try:
         # Primeiro, busca todos os usuários ativos
-        cursor.execute("SELECT id FROM usuarios WHERE active = TRUE;")
+        cursor.execute("SELECT id FROM users WHERE active = TRUE;")
         active_users = cursor.fetchall()
 
         for user in active_users:
             user_id = user[0]
 
             # Busca todos os tipos associados ao usuário
-            cursor.execute("SELECT id FROM tipo WHERE user_id = %s;", (user_id,))
+            cursor.execute("SELECT type FROM types WHERE userid = %s;", (user_id,))
             user_types = cursor.fetchall()
 
             for user_type in user_types:
@@ -43,16 +37,16 @@ def realizeQuerys():
 
                 # Busca o dado coletado mais recente para cada tipo e usuário
                 cursor.execute("""
-                    SELECT value1, value2, dateTime 
-                    FROM dadoscoletados 
-                    WHERE user_id = %s AND tipo_id = %s 
+                    SELECT value1, value2, datetime 
+                    FROM collected_data 
+                    WHERE userid = %s AND type = %s 
                     ORDER BY dateTime DESC 
                     LIMIT 1;
                 """, (user_id, type_id))
                 
                 recent_data = cursor.fetchone()
 
-                # Apenas adiciona o usuário se houver dados coletados
+                # Só adiciona o usuário se houverem dados
                 if recent_data:
                     value1, value2, dateTime = recent_data
                     user_obj = User(id=user_id, type=type_id, value1=value1, value2=value2, dateTime=dateTime)
@@ -64,29 +58,18 @@ def realizeQuerys():
         conn.close()
     return users
 
-def send_udp():
-    pass
+def send_udp(new_generation):
+    for i in new_generation:
+        data = pickle.dumps(i)
+        sock.sendto(data, (UDP_IP, UDP_PORT))
 
 def main():    
     #while True:
-    #    users = realizeQuerys()
-    #    if len(users) > 0:
-    #        sg = sensor_generator()
-    #        nova_geracao = sg.generate()
-    #        send_udp(nova_geracao)
-    #    time.sleep(10000)
-    conn = psycopg2.connect(
-        dbname="iomt",
-        user="user",
-        password="rebonatto",
-        host="localhost",
-        port="5432"
-    )
-    cursor = conn.cursor()
-    users = []
-    cursor.execute("SELECT id, name FROM users WHERE active = TRUE;")
-    active_users = cursor.fetchall()
-    print(active_users)
+        users = realizeQuerys()
+        if len(users) > 0:
+            sg = Generator()
+            new_generation = sg.generate(users)
+            send_udp(new_generation)
 
 if __name__ == "__main__":
     main()
