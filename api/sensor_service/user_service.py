@@ -5,7 +5,6 @@ import os
 from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from datetime import datetime
 from typing import List
 
 from user import User, UserInput
@@ -33,10 +32,6 @@ async def get_users():
         users = cursor.fetchall()
         for user in users:
             user_id = user['id']
-            # Convert measure_types to list if it's not None
-            user['measure_types'] = user['measure_types'] or []
-            if user['measure_types'] is not None:
-                user['measure_types'] = list(user['measure_types'])
             # Fetch measurements for the user
             cursor.execute('SELECT * FROM collected_data WHERE userid = %s', (user_id,))
             measurements = cursor.fetchall()
@@ -50,10 +45,6 @@ async def get_user_by_id(id: int):
         user = cursor.fetchone()
         if user is None:
             raise HTTPException(status_code=404, detail="Usuário não encontrado")
-        # Convert measure_types to list if it's not None
-        user['measure_types'] = user['measure_types'] or []
-        if user['measure_types'] is not None:
-            user['measure_types'] = list(user['measure_types'])
         # Fetch measurements for the user
         cursor.execute('SELECT * FROM collected_data WHERE userid = %s', (id,))
         measurements = cursor.fetchall()
@@ -63,8 +54,8 @@ async def get_user_by_id(id: int):
 @app.post("/users/")
 async def create_user(user_input: UserInput):
     sql = '''
-        INSERT INTO users (name, birth, sex, latitude, longitude, active, measure_types)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO users (name, birth, sex, latitude, longitude, active)
+        VALUES (%s, %s, %s, %s, %s, %s)
         RETURNING id
     '''
     values = (
@@ -73,8 +64,7 @@ async def create_user(user_input: UserInput):
         user_input.sex,
         user_input.latitude,
         user_input.longitude,
-        user_input.active,
-        user_input.measure_types
+        user_input.active
     )
     try:
         with app.state.db_connection.cursor() as cursor:
@@ -90,7 +80,7 @@ async def create_user(user_input: UserInput):
 async def update_user(id: int, user_input: UserInput):
     sql = '''
         UPDATE users
-        SET name = %s, birth = %s, sex = %s, latitude = %s, longitude = %s, active = %s, measure_types = %s
+        SET name = %s, birth = %s, sex = %s, latitude = %s, longitude = %s, active = %s
         WHERE id = %s
     '''
     values = (
@@ -100,7 +90,6 @@ async def update_user(id: int, user_input: UserInput):
         user_input.latitude,
         user_input.longitude,
         user_input.active,
-        user_input.measure_types,
         id
     )
     try:
