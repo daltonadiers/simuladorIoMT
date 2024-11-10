@@ -83,7 +83,7 @@ def put_data(cursor: psycopg2.extensions.cursor, data: Collected_Data_Input, seq
         db_connection.commit()
         result = get_data(cursor, seq)
         return {"message": "Dados atualizados com sucesso", 
-                "result": result}
+                "updated": result}
     except Exception as e:
         db_connection.rollback()
         raise HTTPException(status_code=500, detail=str(e))
