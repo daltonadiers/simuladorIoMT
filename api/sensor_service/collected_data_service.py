@@ -1,18 +1,29 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import psycopg2
-from collected_data_actions import *
+import logging
 
+from collected_data_actions import *
 from collected_data import Collected_Data_Input
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 cursor: psycopg2.extensions.cursor
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global cursor
-    cursor = connect_db()
-    yield
-    close_db()
+    try:
+        cursor = connect_db()
+        yield
+    except:
+        raise SystemExit("Critical error!")
+    finally:
+        close_db()
 
 app = FastAPI(lifespan=lifespan)
 

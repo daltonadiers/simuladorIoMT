@@ -7,16 +7,24 @@ import os
 from dotenv import load_dotenv
 from typing import Optional
 from datetime import datetime
+import logging
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 db_connection: psycopg2.connect
 
+LOG = logging.getLogger(__name__)
+
 def connect_db() -> psycopg2.extensions.cursor:
     global db_connection
-    db_connection = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
-    return db_connection.cursor()
+    try:
+        db_connection = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+        LOG.info("Connected to DB!")
+        return db_connection.cursor()
+    except Exception as e:
+        LOG.error(f"Error connecting to DB: {e}")
+
 
 def close_db():
     global db_connection
