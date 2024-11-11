@@ -16,7 +16,7 @@ def realizeQuerys():
         user="user",
         password="rebonatto",
         host="localhost",
-        port="5432"
+        port="3307"
     )
     cursor = conn.cursor()
     users = []
@@ -50,7 +50,10 @@ def realizeQuerys():
                 if recent_data:
                     value1, value2, dateTime = recent_data
                     user_obj = User(id=user_id, type=type_id, value1=value1, value2=value2, dateTime=dateTime)
-                    users.append(user_obj) 
+                    users.append(user_obj)
+                else:
+                    user_obj = User(id=user_id, type=type_id, value1=0, value2=0, dateTime=None)
+                    users.append(user_obj)
     except Exception as e:
         print(f"Erro ao realizar consultas: {e}")
     finally:

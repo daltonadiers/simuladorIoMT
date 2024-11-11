@@ -7,4 +7,4 @@ class User:
         self.dateTime = dateTime
 
     def to_dict(self):
-        return {"id": self.id, "type": self.type, "value1":self.value1, "value2":self.value2}
+        return {"userid": self.id, "type": self.type, "value1":self.value1, "value2":self.value2}
