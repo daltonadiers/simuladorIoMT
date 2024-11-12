@@ -4,7 +4,7 @@ from sensor_generator import Generator
 import psycopg2
 from datetime import datetime
 import time
-from util import User
+from util import User, Generator
 
 UDP_IP = "127.0.0.1"
 UDP_PORT = 7777 
