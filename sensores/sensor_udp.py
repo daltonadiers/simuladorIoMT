@@ -1,6 +1,5 @@
 import socket
 import pickle
-from sensor_generator import Generator
 import psycopg2
 from datetime import datetime
 import time
