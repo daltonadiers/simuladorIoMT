@@ -1,117 +1,78 @@
 from fastapi import HTTPException
-import psycopg2.extensions
-import psycopg2
-from psycopg2.extras import RealDictCursor
-from collected_data import Collected_Data_Input
-import os
-from dotenv import load_dotenv
+from sqlalchemy.orm import Session
+from models import CollectedData, CollectedDataInput
 from typing import Optional
 from datetime import datetime
 import logging
 
-if os.getenv("ENVIRONMENT") == "production":
-    INSTANCE_CONNECTION_NAME = os.getenv("INSTANCE_CONNECTION_NAME")
-    DB_USER = os.getenv("DB_USER")
-    DB_PASS = os.getenv("DB_PASS")
-    DB_NAME = os.getenv("DB_NAME")
-    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASS}@/{DB_NAME}?host=/cloudsql/{INSTANCE_CONNECTION_NAME}"
-else:
-    load_dotenv()
-    DATABASE_URL = os.getenv("DATABASE_URL")
-
-db_connection: psycopg2.connect
-
 LOG = logging.getLogger(__name__)
 
-def connect_db() -> psycopg2.extensions.cursor:
-    global db_connection
+def get_data(db: Session, seq: Optional[int] = None):
     try:
-        db_connection = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
-        LOG.info("Connected to DB!")
-        return db_connection.cursor()
+        if seq:
+            results = db.query(CollectedData).filter(CollectedData.seq == seq).first()
+        else: 
+            results = db.query(CollectedData).all()
+
+        if results:
+            return results
+        else:
+            raise HTTPException(status_code=404, detail="Dados não encontrados!")
     except Exception as e:
-        LOG.error(f"Error connecting to DB: {e}")
-        return
-
-
-def close_db():
-    global db_connection
-    db_connection.close()
-
-def get_data(cursor: psycopg2.extensions.cursor, seq: Optional[int] = None):
-    query = 'SELECT * FROM collected_data c'
-    if seq:
-        query += ' WHERE c.seq = %s'
-        cursor.execute(query, (seq,))
-        result = cursor.fetchall()
-    else:
-        query += ' ORDER BY c.seq'
-        cursor.execute(query)
-        result = cursor.fetchall()
-    
-    if result:
-        return {"data": result}
-    else:
-        raise HTTPException(status_code=404, detail="Dados não encontrados")
-
-def post_data(cursor: psycopg2.extensions.cursor, data: Collected_Data_Input):
-    sql = '''
-        INSERT INTO collected_data (userid, "type", value1, value2, "datetime", inhouse)
-        VALUES (%s, %s, %s, %s, %s, %s)
-        RETURNING seq
-    '''
-    values = (
-        data.userid,
-        data.type_,
-        data.value1,
-        data.value2,
-        datetime.now(),
-        False
-    )
-    try:
-        cursor.execute(sql, values)
-        new_seq = cursor.fetchone()['seq']
-        db_connection.commit()
-        return {"message": "Dados inseridos com sucesso", "seq": new_seq}
-    except Exception as e:
-        db_connection.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
-def put_data(cursor: psycopg2.extensions.cursor, data: Collected_Data_Input, seq: int):
-    sql = '''
-        UPDATE collected_data
-        SET userid = %s, "type" = %s, value1 = %s, value2 = %s, "datetime" = %s, inhouse = %s
-        WHERE seq = %s
-    '''
-    values = (
-        data.userid,
-        data.type_,
-        data.value1,
-        data.value2,
-        datetime.now(),
-        False,
-        seq
-    )
+def post_data(db: Session, data: CollectedDataInput):
     try:
-        cursor.execute(sql, values)
-        if cursor.rowcount == 0:
-            raise HTTPException(status_code=404, detail="Dados não encontrados")
-        db_connection.commit()
-        result = get_data(cursor, seq)
-        return {"message": "Dados atualizados com sucesso", 
-                "updated": result}
+        new_data = CollectedData(
+            userid=data.userid,
+            datetime=datetime.now(),
+            type=data.type_,
+            value1=data.value1,
+            value2=data.value2,
+            inhouse=False
+        )
+
+        db.add(new_data)
+        db.commit()
+        db.refresh(new_data)
+
+        return {"message": "Dados inseridos com sucesso", "seq": new_data}
     except Exception as e:
-        db_connection.rollback()
+        db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
-def delete_data(cursor: psycopg2.extensions.cursor, seq: int):
+def put_data(db: Session, data: CollectedDataInput, seq: int):
     try:
-        result = get_data(cursor, seq)
-        cursor.execute('DELETE FROM collected_data WHERE seq = %s', (seq,))
-        if cursor.rowcount == 0:
-            raise HTTPException(status_code=404, detail="Dados não encontrados")
-        db_connection.commit()
-        return {"message": "Dados deletados com sucesso", "deleted": result}
+        existing_data = db.query(CollectedData).filter(CollectedData.seq == seq).first()
+
+        if not existing_data:
+            raise HTTPException(status_code=404, detail="Dados não encontrados!")
+
+        existing_data.userid = data.userid
+        existing_data.type = data.type_
+        existing_data.value1 = data.value1
+        existing_data.value2 = data.value2
+        existing_data.inhouse = False
+
+        db.commit()
+        db.refresh(existing_data)
+
+        return {"message": "Dados atualizados com sucesso", "seq": existing_data.seq}
     except Exception as e:
-        db_connection.rollback()
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+def delete_data(db: Session, seq: int):
+    try:
+        existing_data = db.query(CollectedData).filter(CollectedData.seq == seq).first()
+
+        if not existing_data:
+            raise HTTPException(status_code=404, detail="Dados não encontrados!")
+
+        db.delete(existing_data)
+        db.commit()
+
+        return {"message": "Dados excluídos com sucesso", "seq": seq}
+    except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
