@@ -10,7 +10,7 @@ class User:
         self.dateTime = dateTime
 
     def to_dict(self):
-        return {"userid": self.id, "type": self.type, "value1":self.value1, "value2":self.value2}
+        return {"userid": self.id, "type": self.type, "value1":self.value1, "value2":self.value2, "inhouse":True}
 
 class Generator:
     def generate(self, active_users):
