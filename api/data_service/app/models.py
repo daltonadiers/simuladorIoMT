@@ -10,9 +10,8 @@ import enum
 Base = declarative_base()
 
 class SexType(enum.Enum):
-    male = 'male'
-    female = 'female'
-    other = 'other'
+    M = 'M'
+    F = 'F'
 
 class User(Base):
     __tablename__ = 'users'
