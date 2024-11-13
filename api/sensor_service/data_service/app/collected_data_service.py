@@ -38,6 +38,16 @@ async def get_collected_data_by_seq(seq: int):
     result = get_data(db_session, seq)
     return result
 
+@app.get("/collected-data/user/{id}")
+async def get_collected_dataUser_by_id(id: int):
+    result = get_dataUser(db_session, id)
+    return result
+
+@app.get("/collected-data/user/{id}/{type}")
+async def get_collected_dataUser_by_id(id: int, type: int):
+    result = get_dataUser(db_session, id, type)
+    return result
+
 @app.post("/collected-data/")
 async def post_collected_data(data: CollectedDataInput):
     result = post_data(db_session, data)

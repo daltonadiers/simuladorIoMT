@@ -21,6 +21,21 @@ def get_data(db: Session, seq: Optional[int] = None):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+def get_dataUser(db: Session, id: int, type: Optional[int] = None):
+    try:
+        if type:
+            results = db.query(CollectedData).filter(CollectedData.userid == id, CollectedData.type == type).all()
+        else:
+            results = db.query(CollectedData).filter(CollectedData.userid == id).all()
+
+        if results:
+            return results
+        else:
+            raise HTTPException(status_code=404, detail="Dados não encontrados!")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+         
+
 def post_data(db: Session, data: CollectedDataInput):
     try:
         new_data = CollectedData(
@@ -29,7 +44,7 @@ def post_data(db: Session, data: CollectedDataInput):
             type=data.type_,
             value1=data.value1,
             value2=data.value2,
-            inhouse=False
+            inhouse=data.inhouse
         )
 
         db.add(new_data)
@@ -52,7 +67,7 @@ def put_data(db: Session, data: CollectedDataInput, seq: int):
         existing_data.type = data.type_
         existing_data.value1 = data.value1
         existing_data.value2 = data.value2
-        existing_data.inhouse = False
+        existing_data.inhouse = data.inhouse
 
         db.commit()
         db.refresh(existing_data)

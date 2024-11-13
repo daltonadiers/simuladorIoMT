@@ -45,3 +45,4 @@ class CollectedDataInput(BaseModel):
     type_: int = Field(alias='type') 
     value1: float
     value2: float
+    inhouse: bool
