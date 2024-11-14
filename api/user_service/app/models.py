@@ -62,6 +62,24 @@ class UserInput(BaseModel):
     longitude: float
     active: bool
     types:List[int]
+
+class UserParameters(BaseModel):
+    name: str
+    email: str
+    password: str
+    birth: datetime
+    sex: str
+    postal_code: str
+    state: str
+    city: str
+    neighborhood: str
+    street: str
+    house_number: str
+    types: List
+
+class LoginParameters:
+    email: str
+    password: str
     
 class Types(Base):
     __tablename__ = 'types'

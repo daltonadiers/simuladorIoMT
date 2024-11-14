@@ -1,11 +1,14 @@
-from fastapi import HTTPException
+from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from models import *
-from typing import Optional
+from fastapi import HTTPException
 from datetime import datetime
+from typing import Optional
+from models import *
+import requests
 import logging
 
 LOG = logging.getLogger(__name__)
+pwd_context = CryptContext(schemes=['bcrypt'])
 
 def get_user(db:Session, seq: Optional[int] = None):
     try:
@@ -21,40 +24,61 @@ def get_user(db:Session, seq: Optional[int] = None):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-def post_user(db: Session, data: UserInput):
+def post_user(db: Session, data: UserParameters):
     try:
-        new_user = User(
-            name=data.name,
-            email=data.email,
-            password=data.password, 
-            birth=data.birth,
-            sex=SexType(data.sex), 
-            latitude=data.latitude,
-            longitude=data.longitude,
-            active=data.active
-        )
+        endereco = f"{data.street}, {data.house_number} - {data.city}, {data.state}"
 
-        new_types = []
-        for idx, val in enumerate(data.types):
-            if val == 1:
-                new_type = Types(
-                    type=idx + 1, 
-                    user=new_user 
-                )
-                new_types.append(new_type)
+        headers = {
+            "User-Agent": "CadastrarUsuarios/1.0 (henriquepoerschke@gmail.com)"
+        }
+        
+        response = requests.get(f"https://nominatim.openstreetmap.org/search", params={"q": endereco, "format": "json"}, headers=headers)
+        
+        if response.ok and response.json():
+            coordenadas = response.json()[0]
 
-        new_user.types = new_types
+            hashed_pwd = pwd_context.hash(data.password)
 
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
+            novo_usuario = User(
+                name=data.name,
+                email=data.email,
+                password=hashed_pwd,
+                birth=data.birth,
+                sex=data.sex,
+                latitude=float(coordenadas['lat']),
+                longitude=float(coordenadas['lon']),
+                active=True
+            )
 
-        return {"message": "Usuário criado com sucesso!", "seq": new_user.seq}
+            db.add(novo_usuario)
+            db.commit()
+            db.refresh(novo_usuario)
+
+            return {"message": "Usuário cadastrado com sucesso!", "usuario_id": novo_usuario.id}
+        else:
+            raise HTTPException(status_code=400, detail="Não foi possível obter coordenadas geográficas.")
 
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))    
+        raise HTTPException(status_code=500, detail=str(e))
     
+def login(db:Session, data: LoginParameters):
+    try:
+        user: User = db.query(User).filter(User.email == data.email)
+
+        if not user:
+            raise HTTPException(status_code=401, detail="Usuário ou Senha incorretos")
+
+        flag_pwd_correct = pwd_context.verify(data.password, user.password)
+
+        if flag_pwd_correct:
+            return {"message": "Login realizado com sucesso"}
+
+        raise HTTPException(status_code=401, detail="Usuário ou Senha incorretos")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 def put_user(db:Session, data:UserInput, seq:int):
     try:
         user = db.query(User).filter(User.seq==seq).first()
