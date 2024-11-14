@@ -64,3 +64,8 @@ async def get_user_types(seq: int):
 async def delete_user_types(seq_user: int, type: int):
     types = delete_types_by_user(db_session, seq_user, type)
     return types
+
+@app.post("/users/{seq_user}/types/{type}")
+async def post_user_types(seq_user: int, data: TypeInput):
+    types = post_type(db_session, seq_user, data)
+    return types

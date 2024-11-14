@@ -80,6 +80,3 @@ class TypeOutput(BaseModel):
     seq: int
     userid: int
     type: int
-
-    class Config:
-        orm_mode = True 

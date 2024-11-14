@@ -98,7 +98,6 @@ def delete_user(db:Session, seq:int):
         db.rollback()
         raise HTTPException(status_code=500, datail=str(e))
     
-    
 def get_types_by_user(db: Session, seq: int):
     try:
         results = db.query(Types).filter(Types.userid == seq).all()
@@ -110,7 +109,6 @@ def get_types_by_user(db: Session, seq: int):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 def delete_types_by_user(db: Session, seq_user: int,  types= int):
     try:
@@ -128,3 +126,33 @@ def delete_types_by_user(db: Session, seq_user: int,  types= int):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, datail=str(e))
+    
+    
+def post_type(db: Session, seq_user: int, data: TypeInput):
+    try:
+            
+        new_type = db.query(Types).filter(Types.userid == seq_user, Types.type == data.type).first()
+        
+        if new_type:
+            raise HTTPException(status_code=401, detail="Type já existente para esse Usuário")
+
+
+        if data.type > 3 or data.type < 1:
+            raise HTTPException(status_code=401, detail="Type inexistente!")
+
+        new_type = Types(
+                type = data.type,
+                userid = seq_user
+            )
+        
+
+        db.add(new_type)
+        db.commit()
+        db.refresh(new_type)
+        
+        return {"message": "Type criado com sucesso!", "user_seq": seq_user}
+
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))    
