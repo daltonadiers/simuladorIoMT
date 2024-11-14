@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field
 from sqlalchemy import (
     Column, Integer, String, Date, Float, Boolean, ForeignKey, TIMESTAMP
 )
+from typing import List, Optional
+
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import Enum as PgEnum
@@ -27,7 +29,7 @@ class User(Base):
     longitude = Column(Float, nullable=False)
     active = Column(Boolean, default=True, nullable=False)
     
-    
+    types = relationship("Types", back_populates="user", cascade="all, delete-orphan")
     collected_data = relationship("CollectedData", back_populates="user", cascade="all, delete-orphan")
 
 class CollectedData(Base):
@@ -59,4 +61,25 @@ class UserInput(BaseModel):
     latitude: float
     longitude: float
     active: bool
+    types:List[int]
     
+class Types(Base):
+    __tablename__ = 'types'
+    seq = Column(Integer, primary_key=True, index=True)
+    userid = Column(Integer, ForeignKey('users.seq', ondelete='CASCADE'), nullable=False)
+    type = Column(Integer)
+
+    user = relationship("User", back_populates="types")
+
+
+class TypeInput(BaseModel):
+    type: int
+
+
+class TypeOutput(BaseModel):
+    seq: int
+    userid: int
+    type: int
+
+    class Config:
+        orm_mode = True 

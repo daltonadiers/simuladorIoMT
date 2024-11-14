@@ -2,9 +2,11 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import logging
 from sqlalchemy.orm import Session
-from models import UserInput
+from models import UserInput, TypeOutput 
 from database import *
 from user_actions import *
+from typing import List
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -52,3 +54,13 @@ async def put_users(seq:int, data: UserInput):
 async def delete_users(seq:int):
     result = delete_user(db_session, seq)
     return result
+
+@app.get("/users/{seq}/types/", response_model=List[TypeOutput])
+async def get_user_types(seq: int):
+    types = get_types_by_user(db_session, seq)
+    return types
+
+@app.delete("/users/{seq_user}/types/{type}")
+async def delete_user_types(seq_user: int, type: int):
+    types = delete_types_by_user(db_session, seq_user, type)
+    return types

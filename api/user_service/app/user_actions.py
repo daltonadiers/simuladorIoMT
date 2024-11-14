@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from models import User, UserInput
+from models import *
 from typing import Optional
 from datetime import datetime
 import logging
@@ -21,28 +21,40 @@ def get_user(db:Session, seq: Optional[int] = None):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-def post_user(db: Session, data:UserInput):
+def post_user(db: Session, data: UserInput):
     try:
-        new_user = User (
-            name = data.name,
-            email = data.email,
-            password = data.password,
-            birth = data.birth,
-            sex = data.sex,
-            latitude = data.latitude,
-            longitude = data.longitude,
-            active = data.active
+        new_user = User(
+            name=data.name,
+            email=data.email,
+            password=data.password, 
+            birth=data.birth,
+            sex=SexType(data.sex), 
+            latitude=data.latitude,
+            longitude=data.longitude,
+            active=data.active
         )
+
+        new_types = []
+        for idx, val in enumerate(data.types):
+            if val == 1:
+                new_type = Types(
+                    type=idx + 1, 
+                    user=new_user 
+                )
+                new_types.append(new_type)
+
+        new_user.types = new_types
+
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        
-        return {"message" : "Usuário criado com sucesso!", "seq": new_user}
+
+        return {"message": "Usuário criado com sucesso!", "seq": new_user.seq}
 
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
-
+        raise HTTPException(status_code=500, detail=str(e))    
+    
 def put_user(db:Session, data:UserInput, seq:int):
     try:
         user = db.query(User).filter(User.seq==seq).first()
@@ -86,3 +98,33 @@ def delete_user(db:Session, seq:int):
         db.rollback()
         raise HTTPException(status_code=500, datail=str(e))
     
+    
+def get_types_by_user(db: Session, seq: int):
+    try:
+        results = db.query(Types).filter(Types.userid == seq).all()
+        
+        if results:
+            return results
+
+        raise HTTPException(status_code=404, detail="Dados não encontrados!")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def delete_types_by_user(db: Session, seq_user: int,  types= int):
+    try:
+        types = db.query(Types).filter(Types.type == types, Types.userid == seq_user).first()
+        
+        
+        if not types:
+            raise HTTPException(status_code=404, detail="Type não encontrado")
+    
+        db.delete(types)
+        db.commit()
+    
+        return {"message": "Type excluído com sucesso", "user_seq": seq_user, "Type Deleted": types}
+    
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, datail=str(e))
