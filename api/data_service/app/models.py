@@ -16,8 +16,10 @@ class SexType(enum.Enum):
 class User(Base):
     __tablename__ = 'users'
     
-    id = Column(Integer, primary_key=True, index=True)
+    seq = Column(Integer, primary_key=True, index=True)
     name = Column(String(50), nullable=False)
+    email = Column(String(50), nullable=False)
+    password = Column(String(50), nullable=False)
     birth = Column(Date, nullable=False)
     sex = Column(PgEnum(SexType), nullable=False)
     latitude = Column(Float, nullable=False)
@@ -30,7 +32,7 @@ class CollectedData(Base):
     __tablename__ = 'collected_data'
     
     seq = Column(Integer, primary_key=True, index=True)
-    userid = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    userid = Column(Integer, ForeignKey('users.seq', ondelete='CASCADE'), nullable=False)
     datetime = Column(TIMESTAMP, nullable=False)
     type = Column(Integer)
     value1 = Column(Float)
