@@ -27,6 +27,14 @@ class User(Base):
     active = Column(Boolean, default=True, nullable=False)
     
     collected_data = relationship("CollectedData", back_populates="user", cascade="all, delete-orphan")
+    types = relationship("Types", back_populates="user", cascade="all, delete-orphan")
+class Types(Base):
+    __tablename__ = 'types'
+    seq = Column(Integer, primary_key=True, index=True)
+    userid = Column(Integer, ForeignKey('users.seq', ondelete='CASCADE'), nullable=False)
+    type = Column(Integer)
+
+    user = relationship("User", back_populates="types")
 
 class CollectedData(Base):
     __tablename__ = 'collected_data'
