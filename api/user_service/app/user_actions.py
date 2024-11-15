@@ -26,6 +26,11 @@ def get_user(db:Session, seq: Optional[int] = None):
 
 def post_user(db: Session, data: UserParameters):
     try:
+        existing_user = db.query(User).filter(User.email == data.email).first()
+
+        if existing_user:
+            raise HTTPException(status_code=400, detail="E-mail já cadastrado")
+        
         endereco = f"{data.street}, {data.house_number} - {data.city}, {data.state}"
 
         headers = {
@@ -54,7 +59,7 @@ def post_user(db: Session, data: UserParameters):
             db.commit()
             db.refresh(novo_usuario)
 
-            return {"message": "Usuário cadastrado com sucesso!", "usuario_id": novo_usuario.id}
+            return {"message": "Usuário cadastrado com sucesso!", "user_seq": novo_usuario.seq}
         else:
             raise HTTPException(status_code=400, detail="Não foi possível obter coordenadas geográficas.")
 
@@ -64,7 +69,7 @@ def post_user(db: Session, data: UserParameters):
     
 def login(db:Session, data: LoginParameters):
     try:
-        user: User = db.query(User).filter(User.email == data.email)
+        user: User = db.query(User).filter(User.email == data.email).first()
 
         if not user:
             raise HTTPException(status_code=401, detail="Usuário ou Senha incorretos")
@@ -88,7 +93,7 @@ def put_user(db:Session, data:UserInput, seq:int):
 
         user.name = data.name
         user.email = data.email
-        user.password = data.password
+        user.password = pwd_context.hash(data.password)
         user.birth = data.birth
         user.sex = data.sex
         user.latitude = data.latitude

@@ -1,11 +1,11 @@
-from fastapi import FastAPI
+from models import UserInput, TypeOutput, LoginParameters
 from contextlib import asynccontextmanager
-import logging
 from sqlalchemy.orm import Session
-from models import UserInput, TypeOutput 
-from database import *
+from fastapi import FastAPI
 from user_actions import *
 from typing import List
+from database import *
+import logging
 
 
 logging.basicConfig(
@@ -40,10 +40,9 @@ async def get_users_by_id(seq: int):
     return result
 
 @app.post("/users/")
-async def post_users(data: UserInput):
+async def post_users(data: UserParameters):
     result = post_user(db_session, data)
     return result
-
 
 @app.put("/users/{seq}")
 async def put_users(seq:int, data: UserInput):
@@ -69,3 +68,7 @@ async def delete_user_types(seq_user: int, type: int):
 async def post_user_types(seq_user: int, data: TypeInput):
     types = post_type(db_session, seq_user, data)
     return types
+
+@app.post("/auth/login/")
+async def login_user(data: LoginParameters):
+    return login(db_session, data)

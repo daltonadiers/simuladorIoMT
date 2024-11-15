@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import Enum as PgEnum
 import enum
-import datetime
+from datetime import datetime, date
 
 Base = declarative_base()
 
@@ -22,7 +22,7 @@ class User(Base):
     seq = Column(Integer, primary_key=True, index=True)
     name = Column(String(50), nullable=False)
     email = Column(String(50), nullable=False)
-    password = Column(String(50), nullable=False)
+    password = Column(String(128), nullable=False)
     birth = Column(Date, nullable=False)
     sex = Column(PgEnum(SexType), nullable=False)
     latitude = Column(Float, nullable=False)
@@ -56,7 +56,7 @@ class UserInput(BaseModel):
     name: str
     email: str
     password:str
-    birth: datetime.date
+    birth: date
     sex: str
     latitude: float
     longitude: float
@@ -75,9 +75,9 @@ class UserParameters(BaseModel):
     neighborhood: str
     street: str
     house_number: str
-    types: List
+    types: List[int]
 
-class LoginParameters:
+class LoginParameters(BaseModel):
     email: str
     password: str
     
