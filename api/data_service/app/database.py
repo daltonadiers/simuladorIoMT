@@ -19,15 +19,6 @@ else:
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-def connect_db() -> Session:
-    try:
-        db_session = SessionLocal()
-        LOG.info("Connected to DB!")
-        return db_session
-    except Exception as e:
-        LOG.error(f"Error connecting to DB: {e}")
-        return
-
-def close_db(db_session: Session):
-    LOG.info("Closed to DB!")
-    db_session.close()
+def get_db():
+    with Session(engine) as db:
+        yield db
