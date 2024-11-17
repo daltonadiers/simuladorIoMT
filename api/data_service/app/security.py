@@ -7,11 +7,8 @@ from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from database import get_db
+from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_MINUTES
 from models import User
-
-SECRET_KEY = '123' #Provisorio
-ALGORITHM = 'HS256'
-TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=['bcrypt'])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
