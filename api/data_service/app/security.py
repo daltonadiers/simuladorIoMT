@@ -30,17 +30,17 @@ def create_token(data_payload: dict):
     encoded_jwt = encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def get_logged_user(db_session: Session = Depends(get_db), token = Depends(oauth2_scheme)):
+def get_logged_user(db_session: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     try:
         payload = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get('sub')
         if not username:
-            raise HTTPException(status_code=500, detail="Credenciais invalidas!")
+            raise HTTPException(status_code=500, detail="Credenciais inválidas!")
         
         logged_user = db_session.query(User).filter(User.email == username).first()
         if not logged_user:
             raise HTTPException(status_code=500, detail="Usuário não existe!")
 
         return logged_user
-    except PyJWTError:
-        raise HTTPException(status_code=500, detail="Credenciais invalidas!")
+    except PyJWTError as e:
+        raise HTTPException(status_code=500, detail="Credenciais inválidas!")

@@ -14,26 +14,41 @@ def get_login(db_session: Session, email: str, password: str):
         if not user or not verify_password(password, user.password):
             raise HTTPException(status_code=404, detail="Usuario não encontrado ou senha incorreta!")
         token = create_token(data_payload={'sub': user.email})
-        return {'acess_token': token, 'token_type': 'Bearer'}
+        return {'access_token': token, 'token_type': 'bearer'} 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-def get_data(db_session: Session, seq: Optional[int] = None):
+def get_data(db_session: Session, logged_user: User, seq: Optional[int] = None):
     try:
+        admin = False
+        if logged_user.email == "admin@admin":
+            admin = True
         if seq:
-            results = db_session.query(CollectedData).filter(CollectedData.seq == seq).order_by(CollectedData.seq).all()
-        else: 
-            results = db_session.query(CollectedData).order_by(CollectedData.seq).all()
+            if admin:
+                results = db_session.query(CollectedData).filter(CollectedData.seq == seq).order_by(CollectedData.seq).all()
+            else:
+                results = db_session.query(CollectedData).filter(CollectedData.seq == seq, CollectedData.userid == logged_user.seq).order_by(CollectedData.seq).all()
+        else:
+            if admin:
+                results = db_session.query(CollectedData).order_by(CollectedData.seq).all()
+            else:
+                results = db_session.query(CollectedData).filter(CollectedData.userid == logged_user.seq).order_by(CollectedData.seq).all()
 
         if results:
             return results_formater(results)
         else:
-            raise HTTPException(status_code=404, detail="Dados não encontrados!")
+            raise HTTPException(status_code=404, detail="Dados não encontrados ou inexistentes para esse usuario!")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-def get_dataUser(db_session: Session, id: int, type: Optional[int] = None):
+def get_dataUser(db_session: Session, logged_user: User, id: int, type: Optional[int] = None):
     try:
+        admin = False
+        if logged_user.email == "admin@admin":
+            admin = True
+        elif id != logged_user.seq:
+            raise HTTPException(status_code=500, detail="Id de usuário inválido para esse usuário!")
+
         if type:
             results = db_session.query(CollectedData).filter(CollectedData.userid == id, CollectedData.type == type).order_by(CollectedData.seq).all()
         else:
@@ -46,9 +61,10 @@ def get_dataUser(db_session: Session, id: int, type: Optional[int] = None):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
          
-
-def post_data(db_session: Session, data: CollectedDataInput):
+def post_data(db_session: Session, data: CollectedDataInput, logged_user: User):
     try:
+        if (data.userid != logged_user.seq) and (logged_user.email != "admin@admin"):
+            raise HTTPException(status_code=500, detail="Usuario sem direitos para inserir esse dado!")
         new_data = CollectedData(
             userid=data.userid,
             datetime=datetime.now(),
@@ -67,12 +83,15 @@ def post_data(db_session: Session, data: CollectedDataInput):
         db_session.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
-def put_data(db_session: Session, data: CollectedDataInput, seq: int):
+def put_data(db_session: Session, data: CollectedDataInput, seq: int, logged_user: User):
     try:
         existing_data = db_session.query(CollectedData).filter(CollectedData.seq == seq).first()
 
         if not existing_data:
             raise HTTPException(status_code=404, detail="Dados não encontrados!")
+        
+        if ((existing_data.userid != logged_user.seq) | (data.userid != logged_user.seq)) & (logged_user.email != "admin@admin"):
+            raise HTTPException(status_code=500, detail="Usuario sem direitos para atualizar esse dado!")
 
         existing_data.userid = data.userid
         existing_data.type = data.type_
@@ -88,12 +107,15 @@ def put_data(db_session: Session, data: CollectedDataInput, seq: int):
         db_session.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
-def delete_data(db_session: Session, seq: int):
+def delete_data(db_session: Session, seq: int, logged_user: User):
     try:
         existing_data = db_session.query(CollectedData).filter(CollectedData.seq == seq).first()
 
         if not existing_data:
             raise HTTPException(status_code=404, detail="Dados não encontrados!")
+        
+        if (existing_data.userid != logged_user.seq) & (logged_user.email != "admin@admin"):
+            raise HTTPException(status_code=500, detail="Usuario sem direitos para atualizar esse dado!")
 
         db_session.delete(existing_data)
         db_session.commit()

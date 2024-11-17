@@ -55,7 +55,6 @@ class CollectedDataInput(BaseModel):
     value1: float
     value2: float
     inhouse: bool
-
 class Token(BaseModel):
-    acess_token: str
+    access_token: str
     token_type: str

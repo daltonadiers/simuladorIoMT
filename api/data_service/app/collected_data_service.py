@@ -28,36 +28,36 @@ def login_token(form_data: OAuth2PasswordRequestForm = Depends(), db_session: Se
      return token
 
 @app.get("/collected-data/")
-async def get_collected_data(db_session: Session = Depends(get_db)):
-    result = get_data(db_session)
+async def get_collected_data(db_session: Session = Depends(get_db), logged_user = Depends(get_logged_user)):
+    result = get_data(db_session, logged_user)
     return result
 
 @app.get("/collected-data/{seq}")
-async def get_collected_data_by_seq(seq: int, db_session: Session = Depends(get_db)):
-    result = get_data(db_session, seq)
+async def get_collected_data_by_seq(seq: int, db_session: Session = Depends(get_db), logged_user = Depends(get_logged_user)):
+    result = get_data(db_session, logged_user, seq)
     return result
 
 @app.get("/collected-data/user/{id}")
 async def get_collected_dataUser_by_id(id: int, db_session: Session = Depends(get_db), logged_user = Depends(get_logged_user)):
-    result = get_dataUser(db_session, id)
+    result = get_dataUser(db_session, logged_user, id)
     return result
 
 @app.get("/collected-data/user/{id}/{type}")
-async def get_collected_dataUser_by_id(id: int, type: int, db_session: Session = Depends(get_db)):
-    result = get_dataUser(db_session, id, type)
+async def get_collected_dataUser_by_id_type(id: int, type: int, db_session: Session = Depends(get_db), logged_user = Depends(get_logged_user)):
+    result = get_dataUser(db_session, logged_user, id, type)
     return result
 
 @app.post("/collected-data/")
-async def post_collected_data(data: CollectedDataInput, db_session: Session = Depends(get_db)):
-    result = post_data(db_session, data)
+async def post_collected_data(data: CollectedDataInput, db_session: Session = Depends(get_db), logged_user = Depends(get_logged_user)):
+    result = post_data(db_session, data, logged_user)
     return result
 
 @app.put("/collected-data/{seq}")
-async def update_collected_data(seq: int, data: CollectedDataInput, db_session: Session = Depends(get_db)):
-    result = put_data(db_session, data, seq)
+async def update_collected_data(seq: int, data: CollectedDataInput, db_session: Session = Depends(get_db), logged_user = Depends(get_logged_user)):
+    result = put_data(db_session, data, seq, logged_user)
     return result
 
 @app.delete("/collected-data/{seq}")
-async def delete_collected_data(seq: int, db_session: Session = Depends(get_db)):
-    result = delete_data(db_session, seq)
+async def delete_collected_data(seq: int, db_session: Session = Depends(get_db), logged_user = Depends(get_logged_user)):
+    result = delete_data(db_session, seq, logged_user)
     return result
