@@ -37,9 +37,9 @@ async def get_collected_data_by_seq(seq: int, db_session: Session = Depends(get_
     result = get_data(db_session, logged_user, seq)
     return result
 
-@app.get("/collected-data/user/{id}")
-async def get_collected_dataUser_by_id(id: int, db_session: Session = Depends(get_db), logged_user = Depends(get_logged_user)):
-    result = get_dataUser(db_session, logged_user, id)
+@app.get("/collected-data/user/{user_id}")
+async def get_collected_dataUser_by_id(user_id: int, db_session: Session = Depends(get_db), logged_user = Depends(get_logged_user)):
+    result = get_dataUser(db_session, logged_user, user_id)
     return result
 
 @app.get("/collected-data/user/{id}/{type}")

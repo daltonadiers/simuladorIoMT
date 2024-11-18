@@ -41,18 +41,15 @@ def get_data(db_session: Session, logged_user: User, seq: Optional[int] = None):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-def get_dataUser(db_session: Session, logged_user: User, id: int, type: Optional[int] = None):
+def get_dataUser(db_session: Session, logged_user: User, user_id: int, type: Optional[int] = None):
     try:
-        admin = False
-        if logged_user.email == "admin@admin":
-            admin = True
-        elif id != logged_user.seq:
-            raise HTTPException(status_code=500, detail="Id de usuário inválido para esse usuário!")
+        if (user_id != logged_user.seq) & (logged_user.email != "admin@admin"):
+            raise HTTPException(status_code=404, detail="Usuario sem direitos para visualizar esse usuário!")
 
         if type:
-            results = db_session.query(CollectedData).filter(CollectedData.userid == id, CollectedData.type == type).order_by(CollectedData.seq).all()
+            results = db_session.query(CollectedData).filter(CollectedData.userid == user_id, CollectedData.type == type).order_by(CollectedData.seq).all()
         else:
-            results = db_session.query(CollectedData).filter(CollectedData.userid == id).order_by(CollectedData.seq).all()
+            results = db_session.query(CollectedData).filter(CollectedData.userid == user_id).order_by(CollectedData.seq).all()
 
         if results:
             return results_formater(results)
@@ -63,9 +60,8 @@ def get_dataUser(db_session: Session, logged_user: User, id: int, type: Optional
          
 def post_data(db_session: Session, data: CollectedDataInput, logged_user: User):
     try:
-        if (data.userid != logged_user.seq) and (logged_user.email != "admin@admin"):
-            raise HTTPException(status_code=500, detail="Usuario sem direitos para inserir esse dado!")
-        new_data = CollectedData(
+        if logged_user.email == "admin@admin":
+            new_data = CollectedData(
             userid=data.userid,
             datetime=datetime.now(),
             type=data.type_,
@@ -73,6 +69,17 @@ def post_data(db_session: Session, data: CollectedDataInput, logged_user: User):
             value2=data.value2,
             inhouse=data.inhouse
         )
+        elif data.userid == 0 | data.userid == logged_user.seq:
+            new_data = CollectedData(
+                userid=logged_user.seq,
+                datetime=datetime.now(),
+                type=data.type_,
+                value1=data.value1,
+                value2=data.value2,
+                inhouse=data.inhouse
+            )
+        else:
+            raise HTTPException(status_code=500, detail="Usuario sem direitos para inserir esse dado!")
 
         db_session.add(new_data)
         db_session.commit()
@@ -89,15 +96,22 @@ def put_data(db_session: Session, data: CollectedDataInput, seq: int, logged_use
 
         if not existing_data:
             raise HTTPException(status_code=404, detail="Dados não encontrados!")
-        
-        if ((existing_data.userid != logged_user.seq) | (data.userid != logged_user.seq)) & (logged_user.email != "admin@admin"):
-            raise HTTPException(status_code=500, detail="Usuario sem direitos para atualizar esse dado!")
 
-        existing_data.userid = data.userid
-        existing_data.type = data.type_
-        existing_data.value1 = data.value1
-        existing_data.value2 = data.value2
-        existing_data.inhouse = data.inhouse
+        if logged_user.email == "admin@admin":
+            existing_data.userid = data.userid
+            existing_data.type = data.type_
+            existing_data.value1 = data.value1
+            existing_data.value2 = data.value2
+            existing_data.inhouse = data.inhouse
+        elif existing_data.userid != logged_user.seq:
+            raise HTTPException(status_code=500, detail="Usuario sem direitos para atualizar esse dado!")
+        elif ((data.userid == 0) | (data.userid == logged_user.seq)):
+            existing_data.type = data.type_
+            existing_data.value1 = data.value1
+            existing_data.value2 = data.value2
+            existing_data.inhouse = data.inhouse
+        else:
+            raise HTTPException(status_code=500, detail="Usuario sem direitos para atualizar esse dado!")
 
         db_session.commit()
         db_session.refresh(existing_data)
