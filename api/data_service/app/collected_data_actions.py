@@ -69,7 +69,7 @@ def post_data(db_session: Session, data: CollectedDataInput, logged_user: User):
             value2=data.value2,
             inhouse=data.inhouse
         )
-        elif data.userid == 0 | data.userid == logged_user.seq:
+        elif ((data.userid) == 0 or (data.userid == logged_user.seq)):
             new_data = CollectedData(
                 userid=logged_user.seq,
                 datetime=datetime.now(),
@@ -105,7 +105,7 @@ def put_data(db_session: Session, data: CollectedDataInput, seq: int, logged_use
             existing_data.inhouse = data.inhouse
         elif existing_data.userid != logged_user.seq:
             raise HTTPException(status_code=500, detail="Usuario sem direitos para atualizar esse dado!")
-        elif ((data.userid == 0) | (data.userid == logged_user.seq)):
+        elif ((data.userid == 0) or (data.userid == logged_user.seq)):
             existing_data.type = data.type_
             existing_data.value1 = data.value1
             existing_data.value2 = data.value2
@@ -128,7 +128,7 @@ def delete_data(db_session: Session, seq: int, logged_user: User):
         if not existing_data:
             raise HTTPException(status_code=404, detail="Dados não encontrados!")
         
-        if (existing_data.userid != logged_user.seq) & (logged_user.email != "admin@admin"):
+        if (existing_data.userid != logged_user.seq) and (logged_user.email != "admin@admin"):
             raise HTTPException(status_code=500, detail="Usuario sem direitos para atualizar esse dado!")
 
         db_session.delete(existing_data)
