@@ -1,81 +1,49 @@
-.container {
-    width: 600px;
-    background-color: rgb(50, 47, 66);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    padding: 40px;
-    border-radius: 10px;
+.Home .container {
+    width: 80%;
     margin: 0 auto;
-}
-
-.container h1 {
-    text-align: center;
-    font-size: 28px;
-    color: white;
-    margin-bottom: 20px;
-}
-
-.input-field {
-    margin-bottom: 20px;
-    color: rgb(50, 47, 66);
-}
-
-.input-field label {
-    display: block;
-    font-size: 14px;
+    padding: 20px;
+    background-color: rgb(50, 47, 66);
+    border-radius: 10px;
     color: #fff;
-    margin-bottom: 5px;
-}
-
-.input-field input,
-.input-field select {
+  }
+  
+  table {
     width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+  
+  th, td {
     padding: 10px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 40px;
-    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  th {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  td {
+    text-align: center;
+  }
+  
+  .filter-section {
+    margin-bottom: 20px;
     color: #fff;
-    outline: none;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none; 
-}
-
-.input-field select option {
+  }
+  
+  .filter-section label {
+    margin-right: 10px;
+  }
+  
+  .filter-section input {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     background-color: rgb(50, 47, 66);
     color: #fff;
-}
+  }
 
-.input-field select {
-    height: 40px;
-}
-
-button {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 40px;
-    background-color: transparent;
-    color: #fff;
-    font-size: 16px;
-    cursor: pointer;
-    text-align: center;
-    outline: none;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: #000;
-}
-
-.menu {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 30px;
-}
-
-.menu button {
+  .logout-button {
     background-color: transparent;
     color: white;
     border: 2px solid rgba(255, 255, 255, 0.2);
@@ -84,24 +52,19 @@ button:hover {
     cursor: pointer;
 }
 
-.menu button:hover {
+.logout-button:hover {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-.data-table table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.data-table th,
-.data-table td {
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 10px;
-    text-align: center;
+.select-filters select option {
+    background-color: rgb(50, 47, 66);
     color: #fff;
 }
 
-.data-table th {
-    background-color: rgba(255, 255, 255, 0.1);
+.select-filters {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgb(50, 47, 66);
+    color: #fff;
 }

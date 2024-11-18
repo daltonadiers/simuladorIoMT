@@ -7,7 +7,7 @@ import App from './App.jsx';
 import Login from './routes/Login/Login';
 import Home from './routes/Home/Home';
 import Error from './routes/Error/Error.jsx';
-
+import ProtectedRoute from "./components/ProtectedRoute";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -20,13 +20,17 @@ const router = createBrowserRouter([
       },
       {
         path: "home",
-        element: <Home />,
+        element: (
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        ),
       },
     ],
   },
 ]);
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <StrictMode>
     <RouterProvider router={router} />
   </StrictMode>
