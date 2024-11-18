@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 from sqlalchemy.orm import Session
@@ -21,6 +22,19 @@ async def lifespan(app: FastAPI):
         yield
 
 app = FastAPI(lifespan=lifespan)
+
+origins = [
+    "http://localhost:8081",
+    "http://34.121.42.246",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post('/token', response_model=Token)
 def login_token(form_data: OAuth2PasswordRequestForm = Depends(), db_session: Session = Depends(get_db)):
