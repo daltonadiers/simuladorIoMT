@@ -1,0 +1,70 @@
+.Home .container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgb(50, 47, 66);
+    border-radius: 10px;
+    color: #fff;
+  }
+  
+  table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  th {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  td {
+    text-align: center;
+  }
+  
+  .filter-section {
+    margin-bottom: 20px;
+    color: #fff;
+  }
+  
+  .filter-section label {
+    margin-right: 10px;
+  }
+  
+  .filter-section input {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgb(50, 47, 66);
+    color: #fff;
+  }
+
+  .logout-button {
+    background-color: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.logout-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.select-filters select option {
+    background-color: rgb(50, 47, 66);
+    color: #fff;
+}
+
+.select-filters {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgb(50, 47, 66);
+    color: #fff;
+}
