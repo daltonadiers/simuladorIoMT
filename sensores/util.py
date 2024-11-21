@@ -1,5 +1,8 @@
 import random 
 import psycopg2
+import os
+from dotenv import load_dotenv
+import requests
 
 class User:
     def __init__(self, id, type, value1, value2, dateTime):
@@ -27,19 +30,19 @@ class Generator:
         return active_users
 
 class DataBase:
+    def __init__(self):
+        load_dotenv()
+
     def returnActiveUsers(self):
+        url = os.getenv("DATABASE_URL")
         conn = psycopg2.connect(
-            dbname="iomt",
-            user="user",
-            password="rebonatto",
-            host="localhost",
-            port="3307"
+            url
         )
         cursor = conn.cursor()
         users = []
         try:
             # Primeiro, busca todos os usuários ativos
-            cursor.execute("SELECT id FROM users WHERE active = TRUE;")
+            cursor.execute("SELECT seq FROM users WHERE active = TRUE;")
             active_users = cursor.fetchall()
 
             for user in active_users:
@@ -77,3 +80,29 @@ class DataBase:
             cursor.close()
             conn.close()
         return users
+    
+class postToRest:
+    api_url = "https://iomt-data-api-7752107602.us-central1.run.app/collected-data/"
+    auth_url = "https://iomt-data-api-7752107602.us-central1.run.app/token"
+    def __init__(self):
+        load_dotenv()
+        admin_email = os.getenv("ADMIN_EMAIL")
+        admin_password = os.getenv("ADMIN_PASSWORD")
+        data={"username":admin_email, "password":admin_password}
+        response = requests.post(self.auth_url, data=data)
+        if response.status_code == 200:
+            self.token = response.json().get("access_token")
+        else:
+            self.token = None
+    
+    def post_users(self, users):
+        if(self.token == None):
+            return
+        headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
+        for user in users:
+            data = user.to_dict()
+            response = requests.post(self.api_url, json=data, headers=headers)
+            if response.status_code == 200:
+                print("Usuário enviado com sucesso!")
+            else:
+                print(f"Erro ao enviar usuário: {response.status_code} - {response.text}")

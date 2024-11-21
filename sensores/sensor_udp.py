@@ -1,8 +1,7 @@
 import socket
 import pickle
-import time
 from datetime import datetime
-from util import User, Generator, DataBase
+from util import Generator, DataBase
 
 UDP_IP = "127.0.0.1"
 UDP_PORT = 7777 
