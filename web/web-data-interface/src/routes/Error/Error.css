@@ -1,0 +1,12 @@
+.Error {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-image: url("src/assets/bg_login.jpg");
+    background-size: cover;
+    background-position: center;
+    font-weight: 600;
+    font-size: 50px;
+}
