@@ -18,15 +18,27 @@ class User:
 class Generator:
     def generate(self, active_users):
         for i in active_users:
-            if i.type == 1:
-                i.value1 = random.randint(0, 300)
-                i.value2 =  random.randint(0, 300)
-            elif i.type == 2:
-                i.value1 = random.randint(0, 100)
-                i.value2 = random.randint(0, 200)
-            elif i.type == 3:
-                i.value1 = random.randint(30, 45)
-                i.value2 = 0
+            normal = True if random.randint(1,10) <=8 else False
+            if(normal):
+                if i.type == 1:
+                    i.value1 = random.randint(110, 129)
+                    i.value2 =  random.randint(70, 84)
+                elif i.type == 2:
+                    i.value1 = random.randint(95, 100)
+                    i.value2 = random.randint(50, 100)
+                elif i.type == 3:
+                    i.value1 = round(random.uniform(36.0, 37.5),2)
+                    i.value2 = 0
+            else:
+                if i.type == 1:
+                    i.value1 = random.randint(0, 300)
+                    i.value2 =  random.randint(0, 300)
+                elif i.type == 2:
+                    i.value1 = random.randint(0, 100)
+                    i.value2 = random.randint(0, 200)
+                elif i.type == 3:
+                    i.value1 = round(random.uniform(30.0, 45.0),2)
+                    i.value2 = 0
         return active_users
 
 class DataBase:
