@@ -8,6 +8,7 @@ from collected_data_actions import *
 from database import get_db
 from models import CollectedDataInput, Token
 from security import get_logged_user
+from config import ORIGINS
 
 logging.basicConfig(
     level=logging.INFO,
@@ -23,14 +24,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-origins = [
-    "http://localhost:8081",
-    "http://34.121.42.246",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
