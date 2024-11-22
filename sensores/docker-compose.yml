@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  sensor_rest:
+    build:
+      context: ./sensor_rest
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    networks:
+      - app_network
+
+  sensor_udp:
+    build:
+      context: ./sensor_udp
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    networks:
+      - app_network
+    ports:
+      - "7777:7777/udp"
+
+  listener_udp:
+    build:
+      context: ./udp_listener
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    networks:
+      - app_network
+    ports:
+      - "7777:7777/udp"
+
+networks:
+  app_network:
+    driver: bridge

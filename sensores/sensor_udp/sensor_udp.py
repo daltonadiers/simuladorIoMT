@@ -2,7 +2,7 @@ import socket
 import pickle
 import time
 from datetime import datetime
-from util import User, Generator, DataBase
+from util import Generator, DataBase
 
 UDP_IP = "127.0.0.1"
 UDP_PORT = 7777 
@@ -14,12 +14,14 @@ def send_udp(new_generation):
         sock.sendto(data, (UDP_IP, UDP_PORT))
 
 def main():    
-    db = DataBase()
-    users = db.returnActiveUsers()
-    if len(users) > 0:
-        sg = Generator()
-        new_generation = sg.generate(users)
-        send_udp(new_generation)
+    while True:
+        db = DataBase()
+        users = db.returnActiveUsers()
+        if len(users) > 0:
+            sg = Generator()
+            new_generation = sg.generate(users)
+            send_udp(new_generation)
+        time.sleep(3600)
 
 if __name__ == "__main__":
     main()
