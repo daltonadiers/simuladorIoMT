@@ -77,11 +77,18 @@ def post_user(db: Session, data: UserParameters):
             db.commit()
             db.refresh(novo_usuario)
 
+            for t in data.types:
+                novo_tipo = Types(userid=novo_usuario.seq,type=t)
+                db.add(novo_tipo)
+
+            db.commit()
+
             return {"message": "Usuário cadastrado com sucesso!", "user_seq": novo_usuario.seq}
         else:
             raise HTTPException(status_code=422, detail="Não foi possível obter coordenadas geográficas.")
 
     except Exception as e:
+        print(e)
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
