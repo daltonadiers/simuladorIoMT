@@ -1,4 +1,3 @@
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from datetime import datetime
@@ -61,7 +60,7 @@ def post_user(db: Session, data: UserParameters):
         if response.ok and response.json():
             coordenadas = response.json()[0]
 
-            hashed_pwd = pwd_context.hash(data.password)
+            hashed_pwd = get_password_hash(data.password)
 
             novo_usuario = User(
                 name=data.name,

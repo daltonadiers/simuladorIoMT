@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "collected_data_service:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "user_service:app", "--host", "0.0.0.0", "--port", "8000"]
