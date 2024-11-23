@@ -1,0 +1,107 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom, #FEEBC8, #1c4a58, #2C5282);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.UserRegister {
+    max-width: 500px;
+    width: 100%;
+    background-color: rgb(50, 47, 66);
+    border: 1px solid rgb(50, 47, 66);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.UserRegister h2 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.UserRegister .input-field {
+    margin-bottom: 20px;
+}
+
+.UserRegister .input-field label {
+    display: block;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.UserRegister .input-field input,
+.UserRegister .input-field select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #000000;
+    box-sizing: border-box;
+}
+
+.UserRegister .input-field input:focus,
+.UserRegister .input-field select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.25);
+}
+
+.UserRegister .checkbox-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.UserRegister .checkbox-group label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #ffffff;
+    padding-left: 50px;
+    white-space: nowrap;
+}
+
+.UserRegister .checkbox-group input {
+    margin-right: 5px;
+}
+
+.UserRegister .edit-button {
+    margin-bottom: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.UserRegister .edit-button:hover {
+    background-color: #0056b3;
+}
+
+.UserRegister button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.UserRegister button[type="submit"]:hover {
+    background-color: #218838;
+}

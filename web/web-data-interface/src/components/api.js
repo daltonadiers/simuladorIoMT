@@ -1,5 +1,5 @@
 export async function getToken(username, password) {
-    const url = "/api/token";
+    const url = "https://iomt-data-api-7752107602.us-central1.run.app/token";
     const data = new URLSearchParams({ username, password });
     
     try {
@@ -25,7 +25,7 @@ export async function getToken(username, password) {
 }
 
 export async function getCollectedData(token) {
-    const url = "/api/collected-data/";
+    const url = "https://iomt-data-api-7752107602.us-central1.run.app/collected-data/";
 
     try {
         const response = await fetch(url, {

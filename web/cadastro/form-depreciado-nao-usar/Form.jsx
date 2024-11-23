@@ -38,7 +38,7 @@ const Home = () => {
   return (
     <div className="Form">
       <nav className="menu">
-        <button onClick={() => setViewMode("add")}>Adicionar Usuário</button>
+        <button onClick={() => setViewMode("add")}>Adicionar Usuário</button>--
         <button onClick={() => setViewMode("view")}>Ver Usuários</button>
       </nav>
 

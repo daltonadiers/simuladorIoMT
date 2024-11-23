@@ -4,7 +4,7 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-image: url("src/assets/bg_login.jpg");
+    background: linear-gradient(to bottom, #FEEBC8, #1c4a58, #2C5282);
     background-size: cover;
     background-position: center;
     font-weight: 600;
