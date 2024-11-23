@@ -1,107 +1,107 @@
-.container {
-    width: 600px;
-    background-color: rgb(50, 47, 66);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    padding: 40px;
-    border-radius: 10px;
-    margin: 0 auto;
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom, #FEEBC8, #1c4a58, #2C5282);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.container h1 {
+.UserRegister {
+    max-width: 500px;
+    width: 100%;
+    background-color: rgb(50, 47, 66);
+    border: 1px solid rgb(50, 47, 66);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.UserRegister h2 {
     text-align: center;
-    font-size: 28px;
-    color: white;
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.UserRegister .input-field {
     margin-bottom: 20px;
 }
 
-.input-field {
-    margin-bottom: 20px;
-    color: rgb(50, 47, 66);
-}
-
-.input-field label {
+.UserRegister .input-field label {
     display: block;
-    font-size: 14px;
-    color: #fff;
+    font-weight: bold;
+    color: #ffffff;
     margin-bottom: 5px;
+    font-size: 14px;
 }
 
-.input-field input,
-.input-field select {
+.UserRegister .input-field input,
+.UserRegister .input-field select {
     width: 100%;
     padding: 10px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 40px;
-    background-color: transparent;
-    color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #000000;
+    box-sizing: border-box;
+}
+
+.UserRegister .input-field input:focus,
+.UserRegister .input-field select:focus {
+    border-color: #007bff;
     outline: none;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none; 
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.25);
 }
 
-.input-field select option {
-    background-color: rgb(50, 47, 66);
+.UserRegister .checkbox-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.UserRegister .checkbox-group label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #ffffff;
+    padding-left: 50px;
+    white-space: nowrap;
+}
+
+.UserRegister .checkbox-group input {
+    margin-right: 5px;
+}
+
+.UserRegister .edit-button {
+    margin-bottom: 10px;
+    background-color: #007bff;
     color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
 }
 
-.input-field select {
-    height: 40px;
+.UserRegister .edit-button:hover {
+    background-color: #0056b3;
 }
 
-button {
+.UserRegister button[type="submit"] {
     width: 100%;
-    padding: 10px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 40px;
-    background-color: transparent;
-    color: #fff;
+    padding: 12px;
+    background-color: #28a745;
+    border: none;
+    border-radius: 4px;
+    color: white;
     font-size: 16px;
     cursor: pointer;
-    text-align: center;
-    outline: none;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.3s ease;
 }
 
-button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: #000;
-}
-
-.menu {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 30px;
-}
-
-.menu button {
-    background-color: transparent;
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    padding: 10px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-}
-
-.menu button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
-.data-table table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.data-table th,
-.data-table td {
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 10px;
-    text-align: center;
-    color: #fff;
-}
-
-.data-table th {
-    background-color: rgba(255, 255, 255, 0.1);
+.UserRegister button[type="submit"]:hover {
+    background-color: #218838;
 }

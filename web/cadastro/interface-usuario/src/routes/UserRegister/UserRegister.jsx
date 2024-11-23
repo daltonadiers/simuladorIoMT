@@ -2,6 +2,7 @@ import { useState } from "react";
 import "../../App.css";
 import "./UserRegister.css";
 import { buscarEnderecoPorCep, cadastrarUsuario } from "../../components/api";
+
 const UserRegister = () => {
   const [nome, setNome] = useState("");
   const [username, setUsername] = useState("");
@@ -14,8 +15,10 @@ const UserRegister = () => {
   const [bairro, setBairro] = useState("");
   const [rua, setRua] = useState("");
   const [numero, setNumero] = useState("");
+  const [tipos, setTipos] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
   const [viewMode, setViewMode] = useState("add");
+  const [editarEndereco, setEditarEndereco] = useState(false);
 
   const handleCepChange = async (e) => {
     const novoCep = e.target.value;
@@ -28,11 +31,13 @@ const UserRegister = () => {
           setCidade(endereco.cidade);
           setBairro(endereco.bairro);
           setRua(endereco.rua);
+          setEditarEndereco(false);
         } else {
           setEstado("");
           setCidade("");
           setBairro("");
           setRua("");
+          setEditarEndereco(true);
         }
       } catch (error) {
         alert(error.message);
@@ -40,7 +45,17 @@ const UserRegister = () => {
         setCidade("");
         setBairro("");
         setRua("");
+        setEditarEndereco(true);
       }
+    }
+  };
+
+  const handleTipoChange = (e) => {
+    const valorTipo = parseInt(e.target.value);
+    if (e.target.checked) {
+      setTipos([...tipos, valorTipo]);
+    } else {
+      setTipos(tipos.filter((tipo) => tipo !== valorTipo));
     }
   };
 
@@ -49,27 +64,25 @@ const UserRegister = () => {
 
     if (nome && username && password && nascimento && sexo && cep && estado && cidade && bairro && rua && numero) {
       const novoUsuario = {
-        nome,
-        username,
-        password,
-        nascimento: new Date(nascimento).toISOString().split('T')[0],
-        sexo,
-        cep,
-        estado,
-        cidade,
-        bairro,
-        rua,
-        numero,
+        name: nome,
+        email: username,
+        password: password,
+        birth: new Date(nascimento).toISOString(),
+        sex: sexo,
+        postal_code: cep,
+        state: estado,
+        city: cidade,
+        neighborhood: bairro,
+        street: rua,
+        house_number: numero,
+        types: tipos,
       };
 
       try {
         const mensagem = await cadastrarUsuario(novoUsuario);
         alert(mensagem);
 
-        // Atualiza a lista de usuários (opcional)
         setUsuarios([...usuarios, { ...novoUsuario, codigo: usuarios.length + 1 }]);
-
-        // Reseta os campos
         setNome("");
         setUsername("");
         setPassword("");
@@ -81,6 +94,7 @@ const UserRegister = () => {
         setBairro("");
         setRua("");
         setNumero("");
+        setTipos([]);
       } catch (error) {
         alert(error.message);
       }
@@ -144,7 +158,6 @@ const UserRegister = () => {
               <option value="">Selecione</option>
               <option value="M">Masculino</option>
               <option value="F">Feminino</option>
-              <option value="O">Outro</option>
             </select>
           </div>
           <div className="input-field">
@@ -159,19 +172,39 @@ const UserRegister = () => {
           </div>
           <div className="input-field">
             <label>Estado:</label>
-            <input type="text" value={estado} readOnly />
+            <input
+              type="text"
+              value={estado}
+              onChange={(e) => setEstado(e.target.value)}
+              readOnly={!editarEndereco}
+            />
           </div>
           <div className="input-field">
             <label>Cidade:</label>
-            <input type="text" value={cidade} readOnly />
+            <input
+              type="text"
+              value={cidade}
+              onChange={(e) => setCidade(e.target.value)}
+              readOnly={!editarEndereco}
+            />
           </div>
           <div className="input-field">
             <label>Bairro:</label>
-            <input type="text" value={bairro} readOnly />
+            <input
+              type="text"
+              value={bairro}
+              onChange={(e) => setBairro(e.target.value)}
+              readOnly={!editarEndereco}
+            />
           </div>
           <div className="input-field">
             <label>Rua:</label>
-            <input type="text" value={rua} readOnly />
+            <input
+              type="text"
+              value={rua}
+              onChange={(e) => setRua(e.target.value)}
+              readOnly={!editarEndereco}
+            />
           </div>
           <div className="input-field">
             <label>Número:</label>
@@ -183,49 +216,51 @@ const UserRegister = () => {
               required
             />
           </div>
+          <button
+            type="button"
+            onClick={() => setEditarEndereco(!editarEndereco)}
+            className="edit-button"
+          >
+            {editarEndereco ? "Bloquear edição" : "Editar endereço"}
+          </button>
+          <div className="input-field">
+            <label>Tipos:</label>
+            <div className="checkbox-group">
+              <label>
+                <input
+                  type="checkbox"
+                  value="1"
+                  checked={tipos.includes(1)}
+                  onChange={handleTipoChange}
+                />
+                Tipo 1
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  value="2"
+                  checked={tipos.includes(2)}
+                  onChange={handleTipoChange}
+                />
+                Tipo 2
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  value="3"
+                  checked={tipos.includes(3)}
+                  onChange={handleTipoChange}
+                />
+                Tipo 3
+              </label>
+            </div>
+          </div>
           <button type="submit">Cadastrar</button>
         </form>
       ) : (
         <div className="data-table">
           <h2>Lista de Usuários</h2>
-          {usuarios.length > 0 ? (
-            <table>
-              <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Nome</th>
-                  <th>E-mail</th>
-                  <th>Nascimento</th>
-                  <th>Sexo</th>
-                  <th>CEP</th>
-                  <th>Estado</th>
-                  <th>Cidade</th>
-                  <th>Bairro</th>
-                  <th>Rua</th>
-                  <th>Número</th>
-                </tr>
-              </thead>
-              <tbody>
-                {usuarios.map((usuario) => (
-                  <tr key={usuario.codigo}>
-                    <td>{usuario.codigo}</td>
-                    <td>{usuario.nome}</td>
-                    <td>{usuario.username}</td>
-                    <td>{usuario.nascimento}</td>
-                    <td>{usuario.sexo}</td>
-                    <td>{usuario.cep}</td>
-                    <td>{usuario.estado}</td>
-                    <td>{usuario.cidade}</td>
-                    <td>{usuario.bairro}</td>
-                    <td>{usuario.rua}</td>
-                    <td>{usuario.numero}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>Nenhum usuário cadastrado.</p>
-          )}
+          {/* Tabela de usuários */}
         </div>
       )}
     </div>

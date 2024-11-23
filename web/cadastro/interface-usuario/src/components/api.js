@@ -22,8 +22,9 @@ export const buscarEnderecoPorCep = async (cep) => {
 };
 
 export const cadastrarUsuario = async (usuario) => {
+  console.log(usuario)
   try {
-    const response = await fetch('http://127.0.0.1:8000/users/', {
+    const response = await fetch('https://iomt-user-api-7752107602.us-central1.run.app/users/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(usuario),
