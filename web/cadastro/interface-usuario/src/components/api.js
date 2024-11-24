@@ -31,6 +31,11 @@ export const cadastrarUsuario = async (usuario) => {
     });
 
     const result = await response.json();
+
+    if (!response.ok) {
+      return result.message || "Erro ao cadastrar o usuário: Verifique seu endereço";
+    }
+
     return result.message || "Cadastro realizado com sucesso!";
   } catch (error) {
     throw new Error("Erro ao cadastrar o usuário.");
