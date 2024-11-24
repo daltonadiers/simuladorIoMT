@@ -26,7 +26,6 @@ def get_user(db:Session, logged_user: User, seq: Optional[int] = None):
         admin = False
         if logged_user.email == 'admin@admin':
             admin = True
-            raise HTTPException(status_code=403, detail="Usuário sem acesso!")
         
         if admin:
             if seq:
