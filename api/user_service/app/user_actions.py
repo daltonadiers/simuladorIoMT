@@ -23,13 +23,18 @@ def get_login(db_session: Session, email: str, password: str):
 
 def get_user(db:Session, logged_user: User, seq: Optional[int] = None):
     try:
-        if logged_user.email != 'admin@admin':
+        admin = False
+        if logged_user.email == 'admin@admin':
+            admin = True
             raise HTTPException(status_code=403, detail="Usuário sem acesso!")
         
-        if seq:
-            results = db.query(User).filter(User.seq == seq).first()
-        else: 
-            results = db.query(User).all()
+        if admin:
+            if seq:
+                results = db.query(User).filter(User.seq == seq).first()
+            else: 
+                results = db.query(User).all()
+        else:
+            results = db.query(User).filter(User.seq == logged_user.seq).first()
         
         if results:
             return results
