@@ -1,70 +1,119 @@
-.Home .container {
-    width: 80%;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: rgb(50, 47, 66);
-    border-radius: 10px;
-    color: #fff;
-  }
-  
-  table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse;
-  }
-  
-  th, td {
-    padding: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-  
-  th {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-  
-  td {
-    text-align: center;
-  }
-  
-  .filter-section {
-    margin-bottom: 20px;
-    color: #fff;
-  }
-  
-  .filter-section label {
-    margin-right: 10px;
-  }
-  
-  .filter-section input {
-    padding: 5px;
-    border-radius: 5px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background-color: rgb(50, 47, 66);
-    color: #fff;
-  }
-
-  .logout-button {
-    background-color: transparent;
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    padding: 10px 20px;
-    border-radius: 20px;
-    cursor: pointer;
+/* Container principal */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-.logout-button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+/* Título da página */
+h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
 }
 
-.select-filters select option {
-    background-color: rgb(50, 47, 66);
-    color: #fff;
+/* Estilos do botão de logout */
+button.my-4 {
+  background-color: #dc3545; /* Cor do botão (vermelho Bootstrap) */
+  color: white;
+  border: none;
+  font-size: 1rem;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
 }
 
-.select-filters {
-    padding: 5px;
-    border-radius: 5px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background-color: rgb(50, 47, 66);
-    color: #fff;
+button.my-4:hover {
+  background-color: #c82333; /* Cor ao passar o mouse */
+}
+
+/* Customização do DataTable */
+.ReactTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Cabeçalho da Tabela */
+.ReactTable th {
+  background-color: #007bff; /* Cor de fundo do cabeçalho */
+  color: white;
+  text-align: left;
+  padding: 12px 20px;
+  font-size: 1rem;
+}
+
+/* Linhas da tabela */
+.ReactTable td {
+  background-color: #f8f9fa; /* Cor de fundo das células */
+  padding: 12px 20px;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.ReactTable tr:hover td {
+  background-color: #f1f1f1; /* Cor ao passar o mouse */
+}
+
+/* Estilo para as linhas alternadas */
+.ReactTable tr:nth-child(even) td {
+  background-color: #ffffff;
+}
+
+/* Paginação do DataTable */
+.react-pagination {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  margin-top: 20px;
+}
+
+.react-pagination button {
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  font-size: 1rem;
+  padding: 8px 16px;
+  margin: 0 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.react-pagination button:hover {
+  background-color: #0056b3;
+}
+
+.react-pagination button[disabled] {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  /* Ajustar título */
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  /* Ajuste no botão */
+  button.my-4 {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
+
+  /* Ajuste na tabela */
+  .ReactTable th,
+  .ReactTable td {
+    font-size: 0.85rem;
+    padding: 10px 15px;
+  }
+
+  /* Ajuste na paginação */
+  .react-pagination button {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+  }
 }

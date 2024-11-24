@@ -8,6 +8,8 @@ import Login from './routes/Login/Login';
 import Home from './routes/Home/Home';
 import Error from './routes/Error/Error.jsx';
 import ProtectedRoute from "./components/ProtectedRoute";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 const router = createBrowserRouter([
   {
     path: "/",
