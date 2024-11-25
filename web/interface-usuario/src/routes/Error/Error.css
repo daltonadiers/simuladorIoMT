@@ -1,6 +1,12 @@
-.App {
+.Error {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     min-height: 100vh;
     background: linear-gradient(to bottom, #FEEBC8, #1c4a58, #2C5282);
     background-size: cover;
     background-position: center;
+    font-weight: 600;
+    font-size: 50px;
 }
