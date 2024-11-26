@@ -1,6 +1,7 @@
 import random, os, requests, psycopg2
 from dotenv import load_dotenv
 
+
 class User:
     def __init__(self, id, type, value1, value2, dateTime):
         self.id = id
@@ -34,27 +35,15 @@ class Generator:
     def generate(self, active_users):
         for user in active_users:
             user_type_key = (user.id, user.type)
-
-            # prev_state = alguma_coisa[user_type_key]  #TODO: necessário dados anteriores do DB
-            # Será necessário utilizar o cursor ou que seja criado um novo endpoint só para isso
-            # Em caso de cursor, algo assim:
-            # cursor = db.cursor()
-            # cursor.execute(
-            #     """
-            #     SELECT value1, value2
-            #     FROM CollectedData
-            #     WHERE userid = %s AND type = %s
-            # """,
-            #     (user.id, user.type),
-            # )
-            # prev_state = cursor.fetchone()
-            # if prev_state:
-            #     prev_value1, prev_value2 = prev_state
-            # else:
-            #     prev_value1, prev_value2 = None, None
-            #
-            # Não é necessário salvar os dados gerados por aqui já que já serão salvos posteriormente
-            # Só é necessário recuperar os dados anteriores para realizar a suavização
+            # Recupera o estado anterior ou inicializa com valores padrão
+            prev_states = DataBase.get_prev_states()
+            prev_state = prev_states.get(
+                user_type_key,  # PRECISA DE TESTES - value1 e 2 não estava retornando corretamente
+                {
+                    "value1": value1 if user.value1 is not None else 0,
+                    "value2": value2 if user.value2 is not None else 0,
+                },
+            )
 
             # Determina se os valores gerados nessa passada serão anormais ou normais
             normal = random.randint(1, 10) <= 8
@@ -62,13 +51,13 @@ class Generator:
             if user.type == 1:  # Pressão Sanguínea
                 if normal:
                     # Normal range
-                    value1 = self._smooth_generate(
+                    user.value1 = self._smooth_generate(
                         prev_state["value1"],
                         110,
                         129,
                         self.smoothing_factors[1]["value1_smooth"],
                     )
-                    value2 = self._smooth_generate(
+                    user.value2 = self._smooth_generate(
                         prev_state["value2"],
                         70,
                         84,
@@ -76,20 +65,24 @@ class Generator:
                     )
                 else:
                     # Abnormal range (variação mais significativa)
-                    value1 = self._smooth_generate(prev_state["value1"], 0, 300, 0.5)
-                    value2 = self._smooth_generate(prev_state["value2"], 0, 300, 0.5)
+                    user.value1 = self._smooth_generate(
+                        prev_state["value1"], 0, 300, 0.5
+                    )
+                    user.value2 = self._smooth_generate(
+                        prev_state["value2"], 0, 300, 0.5
+                    )
 
             elif user.type == 2:  # SPO2 e batimento cardíaco
                 if normal:
                     # SPO2 - normal range
-                    value1 = self._smooth_generate(
+                    user.value1 = self._smooth_generate(
                         prev_state["value1"],
                         95,
                         100,
                         self.smoothing_factors[2]["value1_smooth"],
                     )
                     # Batimentos - normal range
-                    value2 = self._smooth_generate(
+                    user.value2 = self._smooth_generate(
                         prev_state["value2"],
                         50,
                         100,
@@ -97,13 +90,17 @@ class Generator:
                     )
                 else:
                     # Abnormal ranges
-                    value1 = self._smooth_generate(prev_state["value1"], 0, 100, 0.5)
-                    value2 = self._smooth_generate(prev_state["value2"], 0, 220, 0.5)
+                    user.value1 = self._smooth_generate(
+                        prev_state["value1"], 0, 100, 0.5
+                    )
+                    user.value2 = self._smooth_generate(
+                        prev_state["value2"], 0, 220, 0.5
+                    )
 
             elif user.type == 3:  # Temperatura corporal
                 if normal:
                     # Normal range
-                    value1 = self._smooth_generate(
+                    user.value1 = self._smooth_generate(
                         prev_state["value1"],
                         36.0,
                         37.5,
@@ -111,7 +108,7 @@ class Generator:
                     )
                 else:
                     # Abnormal range
-                    value1 = self._smooth_generate(
+                    user.value1 = self._smooth_generate(
                         prev_state["value1"], 30.0, 45.0, 0.5
                     )
 
@@ -138,12 +135,55 @@ class Generator:
         )
 
         # Garantindo que o valor final estará dentro dos limites min/max
-        return max(min_val, min(max_val, new_value))
+        return round(max(min_val, min(max_val, new_value)), 1)
 
 
 class DataBase:
     def __init__(self):
         load_dotenv()
+
+    def get_prev_states(self) -> Dict[tuple, Dict[str, float]]:
+        """
+        Recupera os dados mais recentes de cada usuário e tipo de sensor para suavizar os resultados gerados.
+
+        :return: Dicionário com estados anteriores, chaveado por (userid, type)
+        """
+        url = os.getenv("DATABASE_URL")
+        conn = psycopg2.connect(url)
+        cursor = conn.cursor()
+        prev_states = {}
+
+        try:
+            # Consulta para recuperar os dados mais recentes para cada usuário e tipo
+            cursor.execute(  # NECESSITA TESTAR SQL!
+                """
+                WITH RankedData AS (
+                    SELECT 
+                        userid, 
+                        type, 
+                        value1, 
+                        value2,
+                        ROW_NUMBER() OVER (PARTITION BY userid, type ORDER BY datetime DESC) as rn
+                    FROM collected_data
+                )
+                SELECT userid, type, value1, value2
+                FROM RankedData
+                WHERE rn = 1
+            """
+            )
+
+            results = cursor.fetchall()
+
+            for userid, type_id, value1, value2 in results:
+                prev_states[(userid, type_id)] = {"value1": value1, "value2": value2}
+
+        except Exception as e:
+            print(f"Erro ao recuperar estados anteriores: {e}")
+        finally:
+            cursor.close()
+            conn.close()
+
+        return prev_states
 
     def returnActiveUsers(self):
         url = os.getenv("DATABASE_URL")

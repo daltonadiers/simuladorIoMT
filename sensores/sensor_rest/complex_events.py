@@ -31,7 +31,6 @@ class ComplexHealthEventDetector:
         """
         Detecção abrangente de eventos de saúde para um único usuário
         """
-        # Current reading details
         current_reading = {
             "user_id": user.id,
             "type": user.type,
@@ -40,7 +39,6 @@ class ComplexHealthEventDetector:
             "timestamp": user.dateTime,
         }
 
-        # Detect specific complex health events
         if user.type == 1:  # Pressão sanguinea
             return self._detect_bp_events(current_reading)
         elif user.type == 2:  # SPO2 e batimentos cardiacos
@@ -170,6 +168,7 @@ class ComplexHealthEventDetector:
                 self.logger.critical(
                     f"Possível diagnóstico: {event['diagnostic_hint']}"
                 )
+
 
 # FOR TESTING PURPOSES
 # from datetime import datetime
