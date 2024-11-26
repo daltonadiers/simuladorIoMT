@@ -1,4 +1,4 @@
-from sensores.util import Generator, DataBase, postToRest
+from util import Generator, DataBase, postToRest
 import time
 
 def main():    

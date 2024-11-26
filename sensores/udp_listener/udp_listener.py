@@ -1,6 +1,6 @@
 import socket
 import pickle
-from sensores.util import postToRest
+from util import postToRest
 
 SERVERUDP = '127.0.0.1'
 PORTUDP = 7777
