@@ -1,9 +1,5 @@
-import random
-import psycopg2
-import os
+import random, os, requests, psycopg2
 from dotenv import load_dotenv
-import requests
-
 
 class User:
     def __init__(self, id, type, value1, value2, dateTime):
@@ -35,15 +31,31 @@ class Generator:
             3: {"value1_smooth": 0.9},  # Temperatura corporal
         }
 
-        # Estados gerados anteriormente - para geração aleatória mas com coerência
-        self.previous_states: Dict[int, Dict[str, Any]] = {}
-
     def generate(self, active_users):
         for user in active_users:
             user_type_key = (user.id, user.type)
-            prev_state = self.previous_states.get(
-                user_type_key, {"value1": user.value1, "value2": user.value2}
-            )
+
+            # prev_state = alguma_coisa[user_type_key]  #TODO: necessário dados anteriores do DB
+            # Será necessário utilizar o cursor ou que seja criado um novo endpoint só para isso
+            # Em caso de cursor, algo assim:
+            # cursor = db.cursor()
+            # cursor.execute(
+            #     """
+            #     SELECT value1, value2
+            #     FROM CollectedData
+            #     WHERE userid = %s AND type = %s
+            # """,
+            #     (user.id, user.type),
+            # )
+            # prev_state = cursor.fetchone()
+            # if prev_state:
+            #     prev_value1, prev_value2 = prev_state
+            # else:
+            #     prev_value1, prev_value2 = None, None
+            #
+            # Não é necessário salvar os dados gerados por aqui já que já serão salvos posteriormente
+            # Só é necessário recuperar os dados anteriores para realizar a suavização
+
             # Determina se os valores gerados nessa passada serão anormais ou normais
             normal = random.randint(1, 10) <= 8
 
@@ -67,9 +79,6 @@ class Generator:
                     value1 = self._smooth_generate(prev_state["value1"], 0, 300, 0.5)
                     value2 = self._smooth_generate(prev_state["value2"], 0, 300, 0.5)
 
-                user.value1 = int(value1)
-                user.value2 = int(value2)
-
             elif user.type == 2:  # SPO2 e batimento cardíaco
                 if normal:
                     # SPO2 - normal range
@@ -91,9 +100,6 @@ class Generator:
                     value1 = self._smooth_generate(prev_state["value1"], 0, 100, 0.5)
                     value2 = self._smooth_generate(prev_state["value2"], 0, 220, 0.5)
 
-                user.value1 = int(value1)
-                user.value2 = int(value2)
-
             elif user.type == 3:  # Temperatura corporal
                 if normal:
                     # Normal range
@@ -108,14 +114,6 @@ class Generator:
                     value1 = self._smooth_generate(
                         prev_state["value1"], 30.0, 45.0, 0.5
                     )
-
-                user.value1 = round(value1, 2)
-                user.value2 = 0
-
-            self.previous_states[user_type_key] = {
-                "value1": user.value1,
-                "value2": user.value2,
-            }
 
         return active_users
 
