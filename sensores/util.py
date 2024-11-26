@@ -24,30 +24,120 @@ class User:
 
 
 class Generator:
+    def __init__(self):
+        # Parametros de controle de suavização de geração de valores aleatórios
+        self.smoothing_factors = {
+            1: {"value1_smooth": 0.7, "value2_smooth": 0.7},  # Pressão Sanguínea
+            2: {"value1_smooth": 0.8, "value2_smooth": 0.8},  # SPO2 e batimento cardíaco
+            3: {"value1_smooth": 0.9},  # Temperatura corporal
+        }
+
+        # Estados gerados anteriormente - para geração aleatória mas com coerência
+        self.previous_states: Dict[int, Dict[str, Any]] = {}
+
     def generate(self, active_users):
-        for i in active_users:
-            normal = True if random.randint(1, 10) <= 8 else False
-            if normal:
-                if i.type == 1:
-                    i.value1 = random.randint(110, 129)
-                    i.value2 = random.randint(70, 84)
-                elif i.type == 2:
-                    i.value1 = random.randint(95, 100)
-                    i.value2 = random.randint(50, 100)
-                elif i.type == 3:
-                    i.value1 = round(random.uniform(36.0, 37.5), 2)
-                    i.value2 = 0
-            else:
-                if i.type == 1:
-                    i.value1 = random.randint(0, 300)
-                    i.value2 = random.randint(0, 300)
-                elif i.type == 2:
-                    i.value1 = random.randint(0, 100)
-                    i.value2 = random.randint(0, 200)
-                elif i.type == 3:
-                    i.value1 = round(random.uniform(30.0, 45.0), 2)
-                    i.value2 = 0
+        for user in active_users:
+            user_type_key = (user.id, user.type)
+            prev_state = self.previous_states.get(
+                user_type_key, {"value1": user.value1, "value2": user.value2}
+            )
+            # Determina se os valores gerados nessa passada serão anormais ou normais
+            normal = random.randint(1, 10) <= 8
+
+            if user.type == 1:  # Pressão Sanguínea
+                if normal:
+                    # Normal range
+                    value1 = self._smooth_generate(
+                        prev_state["value1"],
+                        110,
+                        129,
+                        self.smoothing_factors[1]["value1_smooth"],
+                    )
+                    value2 = self._smooth_generate(
+                        prev_state["value2"],
+                        70,
+                        84,
+                        self.smoothing_factors[1]["value2_smooth"],
+                    )
+                else:
+                    # Abnormal range (variação mais significativa)
+                    value1 = self._smooth_generate(prev_state["value1"], 0, 300, 0.5)
+                    value2 = self._smooth_generate(prev_state["value2"], 0, 300, 0.5)
+
+                user.value1 = int(value1)
+                user.value2 = int(value2)
+
+            elif user.type == 2:  # SPO2 e batimento cardíaco
+                if normal:
+                    # SPO2 - normal range
+                    value1 = self._smooth_generate(
+                        prev_state["value1"],
+                        95,
+                        100,
+                        self.smoothing_factors[2]["value1_smooth"],
+                    )
+                    # Batimentos - normal range
+                    value2 = self._smooth_generate(
+                        prev_state["value2"],
+                        50,
+                        100,
+                        self.smoothing_factors[2]["value2_smooth"],
+                    )
+                else:
+                    # Abnormal ranges
+                    value1 = self._smooth_generate(prev_state["value1"], 0, 100, 0.5)
+                    value2 = self._smooth_generate(prev_state["value2"], 0, 220, 0.5)
+
+                user.value1 = int(value1)
+                user.value2 = int(value2)
+
+            elif user.type == 3:  # Temperatura corporal
+                if normal:
+                    # Normal range
+                    value1 = self._smooth_generate(
+                        prev_state["value1"],
+                        36.0,
+                        37.5,
+                        self.smoothing_factors[3]["value1_smooth"],
+                    )
+                else:
+                    # Abnormal range
+                    value1 = self._smooth_generate(
+                        prev_state["value1"], 30.0, 45.0, 0.5
+                    )
+
+                user.value1 = round(value1, 2)
+                user.value2 = 0
+
+            self.previous_states[user_type_key] = {
+                "value1": user.value1,
+                "value2": user.value2,
+            }
+
         return active_users
+
+    def _smooth_generate(self, prev_value, min_val, max_val, smooth_factor=0.7):
+        """
+        Gera um novo valor aleatório baseado no valor gerado anteriormente, para suavizar os dados finais
+
+        :param prev_value: Valor anterior
+        :param min_val: Valor mínimo possível
+        :param max_val: Valor máximo possível
+        :param smooth_factor: Controla quão próximo o novo valor está do valor anterior
+        :return: Novo valor gerado
+        """
+        # Variação aleatória
+        variation = random.uniform(-1, 1)
+
+        # Cálculo do valor suavizado
+        new_value = (
+            smooth_factor * prev_value
+            + (1 - smooth_factor) * (min_val + (max_val - min_val) * random.random())
+            + variation
+        )
+
+        # Garantindo que o valor final estará dentro dos limites min/max
+        return max(min_val, min(max_val, new_value))
 
 
 class DataBase:
