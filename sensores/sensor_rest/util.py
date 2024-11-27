@@ -38,7 +38,7 @@ class Generator:
             # Recupera o estado anterior ou inicializa com valores padrão
             prev_states = DataBase.get_prev_states()
             prev_state = prev_states.get(
-                user_type_key,  # PRECISA DE TESTES - value1 e 2 não estava retornando corretamente
+                user_type_key,
                 {
                     "value1": value1 if user.value1 is not None else 0,
                     "value2": value2 if user.value2 is not None else 0,
@@ -155,7 +155,7 @@ class DataBase:
 
         try:
             # Consulta para recuperar os dados mais recentes para cada usuário e tipo
-            cursor.execute(  # NECESSITA TESTAR SQL!
+            cursor.execute(
                 """
                 WITH RankedData AS (
                     SELECT 
