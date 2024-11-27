@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 from sqlalchemy.orm import Session
@@ -7,6 +8,7 @@ from collected_data_actions import *
 from database import get_db
 from models import CollectedDataInput, Token
 from security import get_logged_user
+from config import ORIGINS
 
 logging.basicConfig(
     level=logging.INFO,
@@ -21,6 +23,14 @@ async def lifespan(app: FastAPI):
         yield
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post('/token', response_model=Token)
 def login_token(form_data: OAuth2PasswordRequestForm = Depends(), db_session: Session = Depends(get_db)):
@@ -37,9 +47,9 @@ async def get_collected_data_by_seq(seq: int, db_session: Session = Depends(get_
     result = get_data(db_session, logged_user, seq)
     return result
 
-@app.get("/collected-data/user/{id}")
-async def get_collected_dataUser_by_id(id: int, db_session: Session = Depends(get_db), logged_user = Depends(get_logged_user)):
-    result = get_dataUser(db_session, logged_user, id)
+@app.get("/collected-data/user/{user_id}")
+async def get_collected_dataUser_by_id(user_id: int, db_session: Session = Depends(get_db), logged_user = Depends(get_logged_user)):
+    result = get_dataUser(db_session, logged_user, user_id)
     return result
 
 @app.get("/collected-data/user/{id}/{type}")

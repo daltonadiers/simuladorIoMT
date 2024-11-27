@@ -2,7 +2,7 @@ from passlib.context import CryptContext
 from jwt import encode, decode
 from jwt.exceptions import PyJWTError
 from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
+from pytz import utc
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
@@ -21,7 +21,7 @@ def verify_password(password: str, hashed_password: str):
 
 def create_token(data_payload: dict):
     to_encode = data_payload.copy()
-    expire = datetime.now(tz=ZoneInfo('UTC')) + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(tz=utc) + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
 
     to_encode.update({'exp': expire})
     encoded_jwt = encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)

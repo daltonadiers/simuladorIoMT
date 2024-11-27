@@ -76,10 +76,6 @@ class UserParameters(BaseModel):
     street: str
     house_number: str
     types: List[int]
-
-class LoginParameters(BaseModel):
-    email: str
-    password: str
     
 class Types(Base):
     __tablename__ = 'types'
@@ -98,3 +94,7 @@ class TypeOutput(BaseModel):
     seq: int
     userid: int
     type: int
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
