@@ -1,4 +1,4 @@
-# Medições de Saúde - Interface Web
+# Medições de Saúde - Interface Web/Mobile
 
 Este é um projeto React que exibe medições de saúde coletadas de uma API, permitindo que os usuários filtrem, visualizem, editem e excluam os registros. O sistema também possui paginação para facilitar a navegação pelos dados.
 
@@ -18,7 +18,9 @@ Este é um projeto React que exibe medições de saúde coletadas de uma API, pe
 - **Geolocalização**:
   - Utiliza da Geolocalização do usuário para determinar se está em casa.
   - Comunica-se com as API's de geolocalização para calcular através de uma cordenada definida.
-
+- **Mobile em PWA**:
+  - Reutiliza a mesma lógica do projeto web para implementação mobile.
+  - Utilizamos um PWA que após buildado pode ser utilizado como um app mobile.
 ---
 
 ## Requisitos
