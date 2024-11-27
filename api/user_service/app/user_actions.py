@@ -1,4 +1,3 @@
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from datetime import datetime
@@ -24,13 +23,17 @@ def get_login(db_session: Session, email: str, password: str):
 
 def get_user(db:Session, logged_user: User, seq: Optional[int] = None):
     try:
-        if logged_user.email != 'admin@admin':
-            raise HTTPException(status_code=403, detail="Usuário sem acesso!")
+        admin = False
+        if logged_user.email == 'admin@admin':
+            admin = True
         
-        if seq:
-            results = db.query(User).filter(User.seq == seq).first()
-        else: 
-            results = db.query(User).all()
+        if admin:
+            if seq:
+                results = db.query(User).filter(User.seq == seq).first()
+            else: 
+                results = db.query(User).all()
+        else:
+            results = db.query(User).filter(User.seq == logged_user.seq).first()
         
         if results:
             return results
@@ -61,7 +64,7 @@ def post_user(db: Session, data: UserParameters):
         if response.ok and response.json():
             coordenadas = response.json()[0]
 
-            hashed_pwd = pwd_context.hash(data.password)
+            hashed_pwd = get_password_hash(data.password)
 
             novo_usuario = User(
                 name=data.name,
@@ -78,11 +81,18 @@ def post_user(db: Session, data: UserParameters):
             db.commit()
             db.refresh(novo_usuario)
 
+            for t in data.types:
+                novo_tipo = Types(userid=novo_usuario.seq,type=t)
+                db.add(novo_tipo)
+
+            db.commit()
+
             return {"message": "Usuário cadastrado com sucesso!", "user_seq": novo_usuario.seq}
         else:
             raise HTTPException(status_code=422, detail="Não foi possível obter coordenadas geográficas.")
 
     except Exception as e:
+        print(e)
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 

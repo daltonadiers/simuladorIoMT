@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, Button, Container, Row, Col, InputGroup, FormCheck } from "react-bootstrap";
-import { buscarEnderecoPorCep, cadastrarUsuario } from "../../components/apiCadastro";
-import './UserRegister.css'
+import { buscarEnderecoPorCep, atualizarUsuario } from "../../components/apiCadastro";
+import { getUserName } from "../../components/apiLogin";
+import { useAuth } from "../../components/AuthContext";
+import './Home.css'
 
-const UserRegister = () => {
+const Home = () => {
+  const { token, clearToken } = useAuth();
+  const [userId, setUserId] = useState("");
   const [nome, setNome] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [userPassword, setUserPassword] = useState("");
   const [nascimento, setNascimento] = useState("");
   const [sexo, setSexo] = useState("");
   const [cep, setCep] = useState("");
@@ -17,6 +22,62 @@ const UserRegister = () => {
   const [numero, setNumero] = useState("");
   const [tipos, setTipos] = useState([]);
   const [editarEndereco, setEditarEndereco] = useState(false);
+  const [loading, setLoading] = useState(true);
+  // Função para carregar dados do usuário
+  const carregarDadosUsuario = async () => {
+    try {
+      const usuario = await getUserName(token);
+      setUserId(usuario.seq);
+      setNome(usuario.name);
+      setUsername(usuario.email);
+      setUserPassword(usuario.password);
+      setNascimento(usuario.birth);
+      setSexo(usuario.sex);
+      setLoading(false);
+    } catch (error) {
+      alert('Erro ao carregar dados do usuário: ' + error.message);
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    clearToken();
+  };
+
+  const handleUpdateUser = async (event) => {
+    event.preventDefault();
+    try {
+      const usuarioAtualizado = {
+        name: nome,
+        email: username,
+        password: password,
+        birth: new Date(nascimento).toISOString(),
+        sex: sexo,
+        postal_code: cep,
+        state: estado,
+        city: cidade,
+        neighborhood: bairro,
+        street: rua,
+        house_number: numero,
+        types: tipos,
+      };
+
+      const mensagem = await atualizarUsuario(token, usuarioAtualizado, userPassword, userId);
+      alert(mensagem);
+      await carregarDadosUsuario();
+
+    } catch (error) {
+      alert('Erro ao atualizar dados: ' + error.message);
+    }
+  };
+
+  useEffect(() => {
+    carregarDadosUsuario();
+  }, [token]);
+
+  if (loading) {
+    return <div>Carregando dados do usuário...</div>;
+  }
 
   const handleCepChange = async (e) => {
     const novoCep = e.target.value;
@@ -57,57 +118,13 @@ const UserRegister = () => {
     }
   };
 
-  const handleAddUser = async (event) => {
-    event.preventDefault();
-
-    if (nome && username && password && nascimento && sexo && cep && estado && cidade && bairro && rua && numero) {
-      const novoUsuario = {
-        name: nome,
-        email: username,
-        password: password,
-        birth: new Date(nascimento).toISOString(),
-        sex: sexo,
-        postal_code: cep,
-        state: estado,
-        city: cidade,
-        neighborhood: bairro,
-        street: rua,
-        house_number: numero,
-        types: tipos,
-      };
-
-      try {
-        const mensagem = await cadastrarUsuario(novoUsuario);
-        alert(mensagem);
-
-        setNome("");
-        setUsername("");
-        setPassword("");
-        setNascimento("");
-        setSexo("");
-        setCep("");
-        setEstado("");
-        setCidade("");
-        setBairro("");
-        setRua("");
-        setNumero("");
-        setTipos([]);
-      } catch (error) {
-        alert(error.message);
-      }
-    } else {
-      alert("Por favor, preencha todos os campos obrigatórios.");
-    }
-  };
-
   return (
     <Container className="py-5">
       <Row className="justify-content-center">
         <Col md={8} lg={6}>
         <div className="register-card">
-          <h2 className="text-center mb-4">Cadastro de Usuário</h2>
-          <p className="text-center mb-4">Já tem uma conta? <Button href="/login" className="login">Login</Button></p>
-          <Form onSubmit={handleAddUser}>
+          <h2 className="text-center mb-4">Editar Cadastro de Usuário</h2>
+          <Form onSubmit={handleUpdateUser}>
             <Form.Group controlId="formNome" className="mb-3">
               <Form.Label>Nome</Form.Label>
               <Form.Control
@@ -127,17 +144,6 @@ const UserRegister = () => {
                 placeholder="E-mail"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                required
-              />
-            </Form.Group>
-
-            <Form.Group controlId="formSenha" className="mb-3">
-              <Form.Label>Senha</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Senha"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </Form.Group>
@@ -252,9 +258,27 @@ const UserRegister = () => {
               </div>
             </Form.Group>
 
+            <Form.Group controlId="formSenha" className="mb-3">
+              <Form.Label>Confirme sua senha</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </Form.Group>
+
+            <div>
             <Button variant="primary" type="submit" className="w-100">
-              Cadastrar
+              Atualizar
             </Button>
+            </div>
+            <div>
+            <Button variant="danger" onClick={handleLogout} className="my-4">
+              Sair
+            </Button>
+            </div>
           </Form>
           </div>
         </Col>
@@ -263,4 +287,4 @@ const UserRegister = () => {
   );
 };
 
-export default UserRegister;
+export default Home;

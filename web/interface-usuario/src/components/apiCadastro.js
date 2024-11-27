@@ -1,3 +1,5 @@
+import bcrypt from 'bcryptjs';
+
 export const buscarEnderecoPorCep = async (cep) => {
   const cepLimpo = cep.replace(/\D/g, '');
   if (cepLimpo.length === 8) {
@@ -41,3 +43,31 @@ export const cadastrarUsuario = async (usuario) => {
     throw new Error("Erro ao cadastrar o usuário.");
   }
 };
+
+export async function atualizarUsuario(token, user, password, userId) {
+  const url = `https://iomt-user-api-7752107602.us-central1.run.app/users/${userId}`;
+  
+  const isValid = await bcrypt.compare(user.password, password);
+
+  if(!isValid) {
+    return "Senha Inválida!"
+  }
+
+  const response = await fetch(url, {
+    method: "PUT",
+    body: JSON.stringify(user),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const result = await response.json();
+
+  if (response.ok) {
+    return "Atualizado com sucesso!"
+  } else {
+    return "Erro ao atualizar";
+  }
+
+}

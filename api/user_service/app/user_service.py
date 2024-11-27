@@ -9,6 +9,7 @@ from typing import List
 from security import *
 from database import *
 import logging
+from config import ORIGINS
 
 
 logging.basicConfig(
@@ -25,13 +26,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-origins = [
-    "*",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

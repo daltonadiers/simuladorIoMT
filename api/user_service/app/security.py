@@ -2,7 +2,6 @@ from passlib.context import CryptContext
 from jwt import encode, decode
 from jwt.exceptions import PyJWTError
 from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
