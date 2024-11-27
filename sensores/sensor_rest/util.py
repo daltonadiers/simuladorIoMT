@@ -142,7 +142,7 @@ class DataBase:
     def __init__(self):
         load_dotenv()
 
-    def get_prev_states(self) -> Dict[tuple, Dict[str, float]]:
+    def get_prev_states(self):
         """
         Recupera os dados mais recentes de cada usuário e tipo de sensor para suavizar os resultados gerados.
 
