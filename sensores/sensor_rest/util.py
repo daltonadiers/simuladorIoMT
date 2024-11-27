@@ -36,12 +36,12 @@ class Generator:
         for user in active_users:
             user_type_key = (user.id, user.type)
             # Recupera o estado anterior ou inicializa com valores padrão
-            prev_states = DataBase.get_prev_states()
+            prev_states = DataBase.get_prev_states(self)
             prev_state = prev_states.get(
                 user_type_key,
                 {
-                    "value1": value1 if user.value1 is not None else 0,
-                    "value2": value2 if user.value2 is not None else 0,
+                    "value1": 'value1' if user.value1 is not None else 0,
+                    "value2": 'value2' if user.value2 is not None else 0,
                 },
             )
 

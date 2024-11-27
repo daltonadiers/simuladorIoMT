@@ -14,7 +14,7 @@ def main():
     while True:
         try:
             db = DataBase()
-            db.returnActiveUsers()
+            users = db.returnActiveUsers()
             if len(users) > 0:
                 sg = Generator()
                 ce_detector = ComplexHealthEventDetector()
